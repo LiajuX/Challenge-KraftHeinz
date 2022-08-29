@@ -40,7 +40,11 @@ export function Task({ data }: Props) {
 
   const colors = useTheme()
 
-  const dueDateColor = isToday(data.due_date)
+  const isManager = false
+
+  const dueDateColor = isManager
+    ? colors['grey-300']
+    : isToday(data.due_date)
     ? colors['red-500']
     : isThisWeek(data.due_date) && !isToday(data.due_date)
     ? colors['orange-500']

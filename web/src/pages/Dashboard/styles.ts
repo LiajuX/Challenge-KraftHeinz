@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 export const DashboardContainer = styled.div`
   width: 100vw;
@@ -31,31 +31,51 @@ export const Card = styled.div`
   border-radius: 9px;
 
   box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
+`
 
-  p {
-    max-width: 25.75rem;
+interface QuoteProps {
+  isFocused: boolean
+}
 
-    margin-bottom: 0.4375rem;
+export const Quote = styled.div<QuoteProps>`
+  textarea {
+    width: 26.25rem;
+    height: 3.85rem;
+
+    padding: 0.3rem 0.5625rem;
+    border: 0;
+    border-radius: 6px;
 
     color: ${({ theme }) => theme.black};
+    background: transparent;
 
     font-size: 0.75rem;
 
-    div {
-      margin-left: 0.5625rem;
+    resize: none;
+
+    ::-webkit-scrollbar {
+      width: 0px;
     }
 
-    span {
-      display: block;
+    ${({ isFocused }) =>
+      isFocused &&
+      css`
+        border: 1.5px solid ${({ theme }) => theme['green-500']};
 
-      color: ${({ theme }) => theme['grey-200']};
+        box-shadow: none;
+      `}
+  }
 
-      font-size: 1.25rem;
-      font-weight: bold;
+  span {
+    display: block;
 
-      &:last-child {
-        transform: rotate(-180deg);
-      }
+    color: ${({ theme }) => theme['grey-200']};
+
+    font-size: 1.25rem;
+    font-weight: bold;
+
+    &:last-child {
+      transform: rotate(-180deg);
     }
   }
 `
@@ -69,4 +89,36 @@ export const ExpectationsCardContainer = styled.div`
   height: 13.625rem;
 `
 
-export const PonctuationCardContainer = styled.div``
+export const PonctuationCardContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+`
+
+export const PonctuationMessageContainer = styled.div`
+  width: 54%;
+
+  padding: 4.5rem 0;
+
+  font-size: 0.75rem;
+
+  strong {
+    display: block;
+  }
+
+  p {
+    width: 100%;
+    text-align: left;
+
+    margin-bottom: 0.875rem;
+  }
+`
+
+export const RatingStarsContainer = styled.div`
+  display: flex;
+
+  width: 100%;
+
+  margin: 1.5rem 0;
+`

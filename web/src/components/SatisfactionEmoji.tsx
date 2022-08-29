@@ -10,7 +10,6 @@ export function SatisfactionEmoji({
   size,
   type,
   color,
-  ...rest
 }: SatisfactionEmojiProps) {
   const colors = useTheme()
 

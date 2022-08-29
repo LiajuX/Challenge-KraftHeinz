@@ -5,6 +5,7 @@ export const PerformanceCardContainer = styled.div`
   align-items: flex-start;
 
   width: 34rem;
+  height: 30rem;
 
   padding: 1rem 2.5rem;
   border-radius: 9px;

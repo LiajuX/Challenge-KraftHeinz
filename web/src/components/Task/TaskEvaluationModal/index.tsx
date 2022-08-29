@@ -23,7 +23,7 @@ export function TaskEvaluationModal({
   data,
   onCloseModal,
 }: TaskDetailsModalProps) {
-  const isManager = true
+  const isManager = false
 
   return (
     <S.TaskDetailsContainer>

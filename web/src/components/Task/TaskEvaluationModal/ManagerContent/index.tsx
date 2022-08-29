@@ -10,21 +10,14 @@ interface ManagerContentProps {
 }
 
 export function ManagerContent({ onCloseModal }: ManagerContentProps) {
-  const [adaptabilityEvaluation, setAdaptabilityEvaluation] = useState(2)
-  const [leadershipEvaluation, setLeadershipEvaluation] = useState(2)
-  const [personalDevelopmentEvaluation, setPersonalDevelopmentEvaluation] =
-    useState(2)
-  const [communicationEvaluation, setCommunicationEvaluation] = useState(2)
-  const [proactivityEvaluation, setProactivityEvaluation] = useState(2)
+  const [performanceEvaluation, setPerformanceEvaluation] = useState(2)
+  const [dedicationEvaluation, setDedicationEvaluation] = useState(2)
   const [comment, setComment] = useState('')
 
   function handleCompleteTask() {
     console.log({
-      adaptabilityEvaluation: adaptabilityEvaluation + 1,
-      leadershipEvaluation: leadershipEvaluation + 1,
-      personalDevelopmentEvaluation: personalDevelopmentEvaluation + 1,
-      communicationEvaluation: communicationEvaluation + 1,
-      proactivityEvaluation: proactivityEvaluation + 1,
+      performanceEvaluation: performanceEvaluation + 1,
+      dedicationEvaluation: dedicationEvaluation + 1,
       comment,
     })
 
@@ -36,12 +29,12 @@ export function ManagerContent({ onCloseModal }: ManagerContentProps) {
       <strong>Feedback</strong>
       <h3>Avalie o colaborador com base nessa entrega em relacação a:</h3>
 
-      <span>Capacidade do colaborador desempenhar bem em um cargo acima</span>
+      <span>Desempenho na execução da tarefa</span>
 
       <S.SliderContainer>
         <Slider
-          currentValue={adaptabilityEvaluation}
-          setCurrentValue={setAdaptabilityEvaluation}
+          currentValue={performanceEvaluation}
+          setCurrentValue={setPerformanceEvaluation}
         />
       </S.SliderContainer>
 
@@ -49,45 +42,21 @@ export function ManagerContent({ onCloseModal }: ManagerContentProps) {
 
       <S.SliderContainer>
         <Slider
-          currentValue={leadershipEvaluation}
-          setCurrentValue={setLeadershipEvaluation}
+          currentValue={dedicationEvaluation}
+          setCurrentValue={setDedicationEvaluation}
         />
       </S.SliderContainer>
 
-      <span>Satisfação no quesito de desenvolvimento pessoal</span>
+      <section>
+        <span>
+          Selecione as opções que melhor descreve o comportamento do
+          colaborador:
+        </span>
 
-      <S.SliderContainer>
-        <Slider
-          currentValue={personalDevelopmentEvaluation}
-          setCurrentValue={setPersonalDevelopmentEvaluation}
-        />
-      </S.SliderContainer>
+        <Multiselect category="behavior" />
+      </section>
 
-      <span>Satisfação de comunicação do colaborador com o gerente</span>
-
-      <S.SliderContainer>
-        <Slider
-          currentValue={communicationEvaluation}
-          setCurrentValue={setCommunicationEvaluation}
-        />
-      </S.SliderContainer>
-
-      <span>Proatividade</span>
-
-      <S.SliderContainer>
-        <Slider
-          currentValue={proactivityEvaluation}
-          setCurrentValue={setProactivityEvaluation}
-        />
-      </S.SliderContainer>
-
-      <span>
-        Selecione as opções que melhor descreve o comportamento do colaborador:
-      </span>
-
-      <Multiselect category="behavior" />
-
-      <div>
+      <section>
         <label htmlFor="comment">
           Deixe um comentário para se lembrar das observações realizadas ao
           efetuar a avaliação de desempenho
@@ -99,7 +68,7 @@ export function ManagerContent({ onCloseModal }: ManagerContentProps) {
           onChange={(e) => setComment(e.target.value)}
           placeholder="Digite seu comentário aqui"
         />
-      </div>
+      </section>
 
       <S.ButtonContainer>
         <Button

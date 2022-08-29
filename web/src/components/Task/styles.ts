@@ -48,6 +48,10 @@ export const TaskDetails = styled.div`
   margin-right: 2.125rem;
 
   strong {
+    display: block;
+
+    width: 15.5rem;
+
     font-size: 1rem;
   }
 
