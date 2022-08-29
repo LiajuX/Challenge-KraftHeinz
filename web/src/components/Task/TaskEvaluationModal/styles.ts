@@ -121,3 +121,40 @@ export const DueDate = styled.div`
     font-weight: bold;
   }
 `
+
+export const SubtasksContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+`
+
+export const SubtaskButton = styled.button`
+  width: 100%;
+
+  margin-bottom: 1rem;
+  padding: 0.75rem 2rem 2rem 0.875rem;
+  border-radius: 9px;
+
+  background: ${({ theme }) => theme.white};
+
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
+
+  text-align: left;
+
+  &:first-child {
+    margin-top: 1rem;
+  }
+
+  h3 {
+    margin-bottom: 0;
+  }
+`
+
+export const ButtonContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 1.25rem;
+`

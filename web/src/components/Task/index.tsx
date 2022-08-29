@@ -13,14 +13,27 @@ import videoImg from '../../assets/video.svg'
 
 import * as S from './styles'
 
+export interface Subtask {
+  id: string
+  title: string
+  parent_task_title: string
+  isSubtask: boolean
+  description: string
+  due_date: Date
+  files?: []
+  finished_date?: Date
+  assigned_to: string
+}
+
 export interface TaskType {
   id: string
   title: string
   description: string
-  subtasks?: []
+  subtasks?: Subtask[]
   due_date: Date
   files?: []
   finished_date?: Date
+  isSubtask: boolean
   icon: 'report' | 'camera' | 'video'
   assigned_to: string
 }

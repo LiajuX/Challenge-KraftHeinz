@@ -1,4 +1,5 @@
 import { SignOut } from 'phosphor-react'
+import { NavLink } from 'react-router-dom'
 
 import * as S from './styles'
 
@@ -9,14 +10,16 @@ interface UserButtonProps {
 
 export function UserButton({ name, avatarURL }: UserButtonProps) {
   return (
-    <S.UserButtonContainer>
-      <img src={avatarURL} alt="Foto do usuário" />
+    <NavLink to="landing">
+      <S.UserButtonContainer>
+        <img src={avatarURL} alt="Foto do usuário" />
 
-      <span>{name}</span>
+        <span>{name}</span>
 
-      <button>
-        <SignOut weight="bold" size={24} />
-      </button>
-    </S.UserButtonContainer>
+        <button>
+          <SignOut weight="bold" size={24} />
+        </button>
+      </S.UserButtonContainer>
+    </NavLink>
   )
 }
