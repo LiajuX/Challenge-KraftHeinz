@@ -1,31 +1,26 @@
 import { useEffect, useState } from 'react'
+import { Plus } from 'phosphor-react'
+import { useTheme } from 'styled-components'
 import { format, differenceInDays, addDays } from 'date-fns'
 import ptBR from 'date-fns/locale/pt-BR'
 
 import { TeamMemberCard } from '../../components/TeamMemberCard'
-
 import { SearchBar } from '../../components/SearchBar'
-import { Modal } from '../../components/Modal'
-
-import * as S from './styles'
 import { Button } from '../../components/Button'
 import { TeamMemberEvaluationModal } from './components/TeamMemberEvaluationModal'
+import { RoundButton } from '../../components/RoundButton'
+import { TeamMemberManagerEvaluationModal } from './components/TeamMemberManagerEvaluationModal'
+import { MenuOptionButton } from '../../components/RoundButton/MenuOptionButton'
+import { Modal } from '../../components/Modal'
+import { EmployeesListModal } from './components/EmployeesListModal'
+
+import * as S from './styles'
 
 const teams = [
   {
     id: '123456789',
     name: 'Seção de pesquisa e desenvolvimento',
     members: [
-      {
-        id: '345689',
-        name: 'Jakeliny Carvalho',
-        avatar_url: 'https://github.com/jakeliny.png',
-        role: 'manager',
-        role_title: 'Gerente',
-        potential: 'B',
-        task_amount: 40,
-        last_evaluation: new Date(2022, 7, 30),
-      },
       {
         id: '123456789',
         name: 'Diego Galvão',
@@ -62,16 +57,6 @@ const teams = [
     id: '123456798',
     name: 'Equipe de desenvolvimento de produtos',
     members: [
-      {
-        id: '345689',
-        name: 'Jakeliny Carvalho',
-        avatar_url: 'https://github.com/jakeliny.png',
-        role: 'manager',
-        role_title: 'Gerente',
-        potential: 'B',
-        task_amount: 40,
-        last_evaluation: new Date(2022, 7, 30),
-      },
       {
         id: '123456789',
         name: 'Diego Galvão',
@@ -113,14 +98,36 @@ interface TeamsProps {
   members: TeamMember[]
 }
 
+interface Employee {
+  id: string
+  name: string
+  username: string
+  avatar_url: string
+  role: string
+  role_title: string
+  potential: 'A' | 'B' | 'C'
+  task_amount: number
+  last_evaluation: Date
+}
+
 export function Teams() {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isEditingTeams, setIsEditingTeams] = useState(false)
   const [data, setData] = useState<TeamsProps[]>(teams)
   const [searchListData, setSearchListData] = useState<TeamsProps[]>(teams)
   const [currentMember, setCurrentMember] = useState<TeamMember>(
     {} as TeamMember,
   )
+  const [isEmployeesListModalOpen, setIsEmployeesListModalOpen] =
+    useState(false)
+  const [selectedEmployee, setSelectedEmployee] = useState({} as Employee)
   const [search, setSearch] = useState('')
+
+  const colors = useTheme()
+
+  const isManager = true
+
+  console.log(selectedEmployee)
 
   function handleOpenTeamMemberEvaluationModal(member: TeamMember) {
     setCurrentMember(member)
@@ -129,6 +136,22 @@ export function Teams() {
 
   function handleCloseTeamMemberEvaluationModal() {
     setIsModalOpen(false)
+  }
+
+  function handleEditTeams() {
+    setIsEditingTeams(true)
+  }
+
+  function handleStopEditingTeams() {
+    setIsEditingTeams(false)
+  }
+
+  function handleOpenEmployeesListModal() {
+    setIsEmployeesListModalOpen(true)
+  }
+
+  function handleCloseEmployeesListModal() {
+    setIsEmployeesListModalOpen(false)
   }
 
   useEffect(() => {
@@ -142,15 +165,19 @@ export function Teams() {
 
         <S.ContentWrapper>
           <S.ContentWrapperHeader>
-            <SearchBar
-              placeholder="Pesquisar"
-              onChange={(event) => setSearch(event.target.value)}
-            />
+            <S.SearchBarContainer>
+              <SearchBar
+                placeholder="Pesquisar"
+                onChange={(event) => setSearch(event.target.value)}
+              />
+            </S.SearchBarContainer>
           </S.ContentWrapperHeader>
 
           {searchListData.map((team) => (
             <S.TeamContainer key={team.id}>
-              <h3>{team.name}</h3>
+              <h3>
+                {team.name} {isEditingTeams && ' (clique para editar)'}
+              </h3>
 
               {team.members.map((member) => (
                 <S.TeamMemberCardContainer key={member.id}>
@@ -175,8 +202,10 @@ export function Teams() {
                       </span>
                     </S.EvaluationTimeContainer>
 
-                    {differenceInDays(new Date(), member.last_evaluation) >
-                    30 ? (
+                    {isEditingTeams ? (
+                      <S.DeleteButton>remover</S.DeleteButton>
+                    ) : differenceInDays(new Date(), member.last_evaluation) >
+                      30 ? (
                       <Button
                         title="Avaliar"
                         buttonStyle="secondary"
@@ -188,18 +217,75 @@ export function Teams() {
                       <S.DisabledButton>avaliar</S.DisabledButton>
                     )}
 
-                    <TeamMemberEvaluationModal
-                      member={currentMember}
-                      isOpen={isModalOpen}
-                      onCloseModal={handleCloseTeamMemberEvaluationModal}
-                    />
+                    {isManager ? (
+                      <TeamMemberManagerEvaluationModal
+                        member={currentMember}
+                        isOpen={isModalOpen}
+                        onCloseModal={handleCloseTeamMemberEvaluationModal}
+                      />
+                    ) : (
+                      <TeamMemberEvaluationModal
+                        member={currentMember}
+                        isOpen={isModalOpen}
+                        onCloseModal={handleCloseTeamMemberEvaluationModal}
+                      />
+                    )}
                   </TeamMemberCard>
                 </S.TeamMemberCardContainer>
               ))}
+
+              {isEditingTeams && (
+                <S.AddNewMemberButton onClick={handleOpenEmployeesListModal}>
+                  <Plus size={18} />
+                </S.AddNewMemberButton>
+              )}
             </S.TeamContainer>
           ))}
         </S.ContentWrapper>
       </S.TeamsContainer>
+
+      {isManager && (
+        <RoundButton>
+          {isEditingTeams ? (
+            <MenuOptionButton
+              title="Parar de editar"
+              icon="settings"
+              color={colors['red-500']}
+              onClick={handleStopEditingTeams}
+            />
+          ) : (
+            <MenuOptionButton
+              title="Editar equipes"
+              icon="settings"
+              color={colors['green-500']}
+              onClick={handleEditTeams}
+            />
+          )}
+
+          <MenuOptionButton
+            title="Nova sub-equipe"
+            icon="group"
+            color={colors['blue-500']}
+          />
+
+          <MenuOptionButton
+            title="Nova equipe"
+            icon="group"
+            color={colors['blue-600']}
+          />
+        </RoundButton>
+      )}
+
+      <Modal
+        isOpen={isEmployeesListModalOpen}
+        onCloseModal={handleCloseEmployeesListModal}
+      >
+        <EmployeesListModal
+          onCloseModal={handleCloseEmployeesListModal}
+          selectedEmployee={selectedEmployee}
+          setSelectedEmployee={setSelectedEmployee}
+        />
+      </Modal>
     </>
   )
 }

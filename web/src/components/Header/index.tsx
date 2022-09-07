@@ -14,8 +14,8 @@ export function Header() {
         <Logo color={colors['blue-500']} />
 
         <UserButton
-          name="Guilherme Carvalho"
-          avatarURL="https://github.com/diego3g.png"
+          name="Jakeliny Carvalho"
+          avatarURL="https://github.com/jakeliny.png"
         />
       </S.ContentWrapper>
     </S.HeaderContainer>

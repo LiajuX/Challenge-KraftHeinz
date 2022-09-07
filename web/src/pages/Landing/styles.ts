@@ -2,7 +2,8 @@ import styled from 'styled-components'
 
 export const LandingContainer = styled.div`
   max-width: 1110px;
-  height: 100vh;
+  width: 100vw;
+  height: 100%;
 
   margin: 0 auto;
 

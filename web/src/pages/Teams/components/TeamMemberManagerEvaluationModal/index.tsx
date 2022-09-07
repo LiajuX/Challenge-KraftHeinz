@@ -9,29 +9,29 @@ import { Multiselect } from '../../../../components/Multiselect'
 
 import * as S from './styles'
 
-interface TeamMemberEvaluationModalProps {
+interface TeamMemberManagerEvaluationModalProps {
   isOpen: boolean
   onCloseModal: () => void
   member: TeamMember
 }
 
-export function TeamMemberEvaluationModal({
+export function TeamMemberManagerEvaluationModal({
   isOpen,
   onCloseModal,
   member,
-}: TeamMemberEvaluationModalProps) {
-  const [teamWorkEvaluation, setTeamWorkEvaluation] = useState(2)
+}: TeamMemberManagerEvaluationModalProps) {
+  const [adaptabilityEvaluation, setAdaptabilityEvaluation] = useState(2)
   const [leadershipEvaluation, setLeadershipEvaluation] = useState(2)
-  const [workBehaviorEvaluation, setWorkBehaviorEvaluation] = useState(2)
+  const [progressEvaluation, setProgressEvaluation] = useState(2)
   const [communicationEvaluation, setCommunicationEvaluation] = useState(2)
   const [proactivityEvaluation, setProactivityEvaluation] = useState(2)
   const [comment, setComment] = useState('')
 
   function handleCompleteTeamMemberEvaluation() {
     console.log({
-      teamWorkEvaluation: teamWorkEvaluation + 1,
+      adaptabilityEvaluation: adaptabilityEvaluation + 1,
       leadershipEvaluation: leadershipEvaluation + 1,
-      workBehaviorEvaluation: workBehaviorEvaluation + 1,
+      progressEvaluation: progressEvaluation + 1,
       communicationEvaluation: communicationEvaluation + 1,
       proactivityEvaluation: proactivityEvaluation + 1,
       comment,
@@ -53,12 +53,12 @@ export function TeamMemberEvaluationModal({
           isso, avalie de 0 a 5 a pessoa selecionada nos seguintes aspectos:
         </p>
 
-        <span>Satisfação do trabalho em equipe</span>
+        <span>Capacidade do colaborador desempenhar bem em um cargo acima</span>
 
         <S.SliderContainer>
           <Slider
-            currentValue={teamWorkEvaluation}
-            setCurrentValue={setTeamWorkEvaluation}
+            currentValue={adaptabilityEvaluation}
+            setCurrentValue={setAdaptabilityEvaluation}
           />
         </S.SliderContainer>
 
@@ -72,18 +72,18 @@ export function TeamMemberEvaluationModal({
         </S.SliderContainer>
 
         <span>
-          Satisfação com a forma de trabalho (agilidade, efetividade e
-          adaptabilidade)
+          Satisfação com o desenvolvimento pessoal (o colaborador se apresenta
+          cada vez mais capacitado)
         </span>
 
         <S.SliderContainer>
           <Slider
-            currentValue={workBehaviorEvaluation}
-            setCurrentValue={setWorkBehaviorEvaluation}
+            currentValue={progressEvaluation}
+            setCurrentValue={setProgressEvaluation}
           />
         </S.SliderContainer>
 
-        <span>Satisfação de comunicação com a equipe</span>
+        <span>Satisfação de comunicação com o gerente</span>
 
         <S.SliderContainer>
           <Slider

@@ -1,7 +1,13 @@
+import { useState } from 'react'
+import { useTheme } from 'styled-components'
+
 import { Task, TaskType } from '../../components/Task'
 import { PerformanceCard } from '../../components/PerformanceCard'
 import { BehaviorRadarChart } from '../../components/BehaviorRadarChart'
 import { RoundButton } from '../../components/RoundButton'
+import { MenuOptionButton } from '../../components/RoundButton/MenuOptionButton'
+import { Modal } from '../../components/Modal'
+import { NewTaskModal } from './components/NewTaskModal'
 
 import * as S from './styles'
 
@@ -63,12 +69,24 @@ const tasks: TaskType[] = [
 ]
 
 export function Home() {
-  const isManager = false
+  const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false)
+
+  const colors = useTheme()
+
+  const isManager = true
+
+  function handleOpenNewTaskModal() {
+    setIsNewTaskModalOpen(true)
+  }
+
+  function handleCLoseNewTaskModal() {
+    setIsNewTaskModalOpen(false)
+  }
 
   return (
     <>
       <S.HomeContainer>
-        <h1>Bem vindo, Guilherme!</h1>
+        <h1>Bem vinda, Jakeliny!</h1>
 
         <S.ContentWrapper>
           <section>
@@ -95,7 +113,18 @@ export function Home() {
         </S.ContentWrapper>
       </S.HomeContainer>
 
-      <RoundButton />
+      <RoundButton>
+        <MenuOptionButton
+          title={isManager ? 'Nova tarefa' : 'Nova tarefa extra'}
+          icon="task"
+          color={colors['orange-500']}
+          onClick={handleOpenNewTaskModal}
+        />
+      </RoundButton>
+
+      <Modal isOpen={isNewTaskModalOpen} onCloseModal={handleCLoseNewTaskModal}>
+        <NewTaskModal onCloseModal={handleCLoseNewTaskModal} />
+      </Modal>
     </>
   )
 }

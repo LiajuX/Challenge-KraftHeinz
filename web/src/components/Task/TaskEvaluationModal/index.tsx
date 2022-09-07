@@ -15,7 +15,7 @@ export interface Subtask {
   parent_task_title: string
   isSubtask: boolean
   description: string
-  due_date: Date
+  due_date: Date | null
   files?: []
 }
 
@@ -23,7 +23,7 @@ export interface TaskDetailsProps {
   title: string
   description: string
   parent_task_title?: string
-  due_date: Date
+  due_date: Date | null
   files?: []
   isSubtask: boolean
   subtasks?: Subtask[]
@@ -41,7 +41,7 @@ export function TaskEvaluationModal({
   const [isSubtaskModalOpen, setIsSubtaskModalOpen] = useState(false)
   const [subtaskData, setSubtaskData] = useState<Subtask>({} as Subtask)
 
-  const isManager = false
+  const isManager = true
 
   const taskHeader = data.isSubtask
     ? data.parent_task_title!.split(' ').length <= 3
@@ -69,7 +69,9 @@ export function TaskEvaluationModal({
         <S.DueDate>
           <Alarm weight="bold" size={20} />
 
-          <time>{format(data.due_date, 'dd/MM/yyyy', { locale: ptBR })}</time>
+          {data.due_date && (
+            <time>{format(data.due_date, 'dd/MM/yyyy', { locale: ptBR })}</time>
+          )}
         </S.DueDate>
       </header>
 
@@ -96,11 +98,13 @@ export function TaskEvaluationModal({
                     <S.DueDate>
                       <Alarm weight="bold" size={20} />
 
-                      <time>
-                        {format(subtask.due_date, 'dd/MM/yyyy', {
-                          locale: ptBR,
-                        })}
-                      </time>
+                      {subtask.due_date && (
+                        <time>
+                          {format(subtask.due_date, 'dd/MM/yyyy', {
+                            locale: ptBR,
+                          })}
+                        </time>
+                      )}
                     </S.DueDate>
                   </header>
 

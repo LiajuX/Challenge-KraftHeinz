@@ -5,7 +5,7 @@ export const InputContainer = styled.div`
   align-items: center;
   justify-content: space-between;
 
-  width: 19.75rem;
+  width: 100%;
   height: 1.5625rem;
 
   padding: 0.375rem;

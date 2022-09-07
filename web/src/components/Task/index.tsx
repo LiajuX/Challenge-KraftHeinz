@@ -53,7 +53,7 @@ export function Task({ data }: Props) {
 
   const colors = useTheme()
 
-  const isManager = false
+  const isManager = true
 
   const dueDateColor = isManager
     ? colors['grey-300']

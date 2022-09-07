@@ -1,7 +1,5 @@
 import styled, { css } from 'styled-components'
 
-import { gradientColors } from '../../utils/getRandomGradientColor'
-
 export const TeamMemberCardContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 3fr;

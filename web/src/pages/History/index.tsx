@@ -3,8 +3,8 @@ import { useTheme } from 'styled-components'
 
 import { SatisfactionEmoji } from '../../components/SatisfactionEmoji'
 import { TeamMemberCard } from '../../components/TeamMemberCard'
-import { SearchBar } from '../../components/SearchBar'
 import { Modal } from '../../components/Modal'
+import { SearchBar } from '../../components/SearchBar'
 
 import * as S from './styles'
 
@@ -86,10 +86,12 @@ export function History() {
           <S.ContentWrapperHeader>
             <h3>Escolha um colaborador para ver sua timeline</h3>
 
-            <SearchBar
-              placeholder="Pesquisar"
-              onChange={(event) => setSearch(event.target.value)}
-            />
+            <S.SearchBarContainer>
+              <SearchBar
+                placeholder="Pesquisar"
+                onChange={(event) => setSearch(event.target.value)}
+              />
+            </S.SearchBarContainer>
           </S.ContentWrapperHeader>
 
           {searchListData.map((employee) => (

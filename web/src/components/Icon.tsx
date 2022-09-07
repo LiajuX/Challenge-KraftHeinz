@@ -1,18 +1,23 @@
 import { useTheme } from 'styled-components'
 
 interface RouteIconProps {
-  icon: 'home' | 'charts' | 'like' | 'group'
+  icon: 'home' | 'charts' | 'like' | 'group' | 'task'
   size?: number
-  isActive: boolean
+  isActive?: boolean
 }
 
-export function RouteIcon({ icon, size, isActive }: RouteIconProps) {
+export function Icon({ icon, size, isActive }: RouteIconProps) {
   const colors = useTheme()
 
   switch (icon) {
     case 'home':
       return (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 52 50">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          height={size || 50}
+          viewBox="0 0 52 50"
+        >
           <g clipPath="url(#clip0_138_2204)">
             <path
               fill={isActive ? colors['blue-500'] : colors.white}
@@ -29,7 +34,12 @@ export function RouteIcon({ icon, size, isActive }: RouteIconProps) {
 
     case 'charts':
       return (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 50 50">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          height={size || 50}
+          viewBox="0 0 50 50"
+        >
           <g
             fill={isActive ? colors['blue-500'] : colors.white}
             clipPath="url(#clip0_138_2207)"
@@ -47,7 +57,12 @@ export function RouteIcon({ icon, size, isActive }: RouteIconProps) {
 
     case 'like':
       return (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 53 51">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height={size || 50}
+          fill="none"
+          viewBox="0 0 53 51"
+        >
           <g clipPath="url(#clip0_138_2206)">
             <path
               fill={isActive ? colors['blue-500'] : colors.white}
@@ -64,7 +79,12 @@ export function RouteIcon({ icon, size, isActive }: RouteIconProps) {
 
     case 'group':
       return (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 51 50">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height={size || 50}
+          fill="none"
+          viewBox="0 0 51 50"
+        >
           <g
             fill={isActive ? colors['blue-500'] : colors.white}
             clipPath="url(#clip0_582_3813)"
@@ -75,6 +95,26 @@ export function RouteIcon({ icon, size, isActive }: RouteIconProps) {
           <clipPath id="clip0_582_3813">
             <path d="M0 0H50V50H0z" transform="translate(.092)"></path>
           </clipPath>
+        </svg>
+      )
+
+    case 'task':
+      return (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height={size || 32}
+          fill="none"
+          viewBox="0 0 32 32"
+        >
+          <g fill="#fff" clipPath="url(#clip0_493_2958)">
+            <path d="M27.168.046H4.832A4.787 4.787 0 00.046 4.832v22.336a4.787 4.787 0 004.786 4.786h22.336a4.788 4.788 0 004.786-4.786V4.832A4.787 4.787 0 0027.168.046zm1.595 27.123a1.596 1.596 0 01-1.595 1.595H4.832a1.596 1.596 0 01-1.595-1.596V4.833a1.595 1.595 0 011.595-1.596h22.336a1.596 1.596 0 011.596 1.596v22.336z"></path>
+            <path d="M22.381 8.023H9.618a1.596 1.596 0 000 3.19h12.764a1.596 1.596 0 000-3.19zM9.618 17.596H16a1.595 1.595 0 100-3.191H9.618a1.595 1.595 0 100 3.19zM22.381 20.787H9.618a1.596 1.596 0 000 3.19h12.764a1.596 1.596 0 000-3.19z"></path>
+          </g>
+          <defs>
+            <clipPath id="clip0_493_2958">
+              <path fill="#fff" d="M0 0H32V32H0z"></path>
+            </clipPath>
+          </defs>
         </svg>
       )
   }

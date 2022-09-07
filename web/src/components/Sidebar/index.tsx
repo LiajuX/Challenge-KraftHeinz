@@ -3,12 +3,12 @@ import { FiSettings } from 'react-icons/fi'
 
 import { managerRoutes, routes } from '../../utils/sidebarData'
 
-import { RouteIcon } from './RouteIcon'
+import { Icon } from '../Icon'
 
 import * as S from './styles'
 
 export function Sidebar() {
-  const isManager = false
+  const isManager = true
 
   const currentRoute = useLocation()
   const { pathname } = currentRoute
@@ -24,10 +24,7 @@ export function Sidebar() {
               isActive={pathname === route.path}
             >
               <NavLink to={route.path}>
-                <RouteIcon
-                  isActive={pathname === route.path}
-                  icon={route.icon}
-                />
+                <Icon isActive={pathname === route.path} icon={route.icon} />
               </NavLink>
             </S.NavItem>
           ))}
@@ -40,10 +37,7 @@ export function Sidebar() {
               isActive={pathname === route.path}
             >
               <NavLink to={route.path}>
-                <RouteIcon
-                  isActive={pathname === route.path}
-                  icon={route.icon}
-                />
+                <Icon isActive={pathname === route.path} icon={route.icon} />
               </NavLink>
             </S.NavItem>
           ))}

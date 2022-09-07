@@ -13,6 +13,7 @@ export function Landing() {
         <S.Header>
           <Logo />
         </S.Header>
+
         <main>
           <section>
             <h1>

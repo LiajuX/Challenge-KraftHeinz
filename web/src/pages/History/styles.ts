@@ -42,3 +42,7 @@ export const TeamMemberButton = styled.button`
     margin-bottom: 0.8125rem;
   }
 `
+
+export const SearchBarContainer = styled.div`
+  width: 19.75rem;
+`

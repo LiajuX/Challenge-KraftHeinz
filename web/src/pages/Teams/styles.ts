@@ -83,3 +83,49 @@ export const DisabledButton = styled.div`
 
   cursor: not-allowed;
 `
+
+export const DeleteButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 10rem;
+  height: 3rem;
+
+  color: ${({ theme }) => theme['red-500']};
+  background: transparent;
+
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+
+  transition: all 0.2s;
+
+  &:hover {
+    color: ${({ theme }) => theme['red-700']};
+  }
+`
+
+export const AddNewMemberButton = styled.button`
+  width: 100%;
+  height: 5rem;
+
+  margin-bottom: 2.125rem;
+  border: 2px solid ${({ theme }) => theme['grey-100']};
+  border-radius: 100px 9px 9px 100px;
+
+  color: ${({ theme }) => theme['grey-200']};
+  background: ${({ theme }) => theme.white};
+
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: ${({ theme }) => theme['grey-200']};
+
+    color: ${({ theme }) => theme['grey-300']};
+  }
+`
+
+export const SearchBarContainer = styled.div`
+  width: 19.75rem;
+`
