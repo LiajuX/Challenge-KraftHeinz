@@ -3,6 +3,8 @@ import { format } from 'date-fns'
 import ptBR from 'date-fns/locale/pt-BR'
 import { Alarm, Plus } from 'phosphor-react'
 
+import { useAuth } from '../../../hooks/useAuth'
+
 import { StaffContent } from './StaffContent'
 import { ManagerContent } from './ManagerContent'
 import { Button } from '../../Button'
@@ -41,7 +43,7 @@ export function TaskEvaluationModal({
   const [isSubtaskModalOpen, setIsSubtaskModalOpen] = useState(false)
   const [subtaskData, setSubtaskData] = useState<Subtask>({} as Subtask)
 
-  const isManager = true
+  const { user } = useAuth()
 
   const taskHeader = data.isSubtask
     ? data.parent_task_title!.split(' ').length <= 3
@@ -150,7 +152,7 @@ export function TaskEvaluationModal({
 
           <hr />
 
-          {isManager ? (
+          {user?.is_manager ? (
             <ManagerContent onCloseModal={onCloseModal} />
           ) : (
             <StaffContent onCloseModal={onCloseModal} />

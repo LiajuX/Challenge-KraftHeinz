@@ -14,7 +14,7 @@ const ACTIVE_LINK_HOVER_COLORS = {
 } as const
 
 interface ActiveLinkContainerProps {
-  linkStyle: keyof typeof ACTIVE_LINK_COLORS
+  type: keyof typeof ACTIVE_LINK_COLORS
 }
 
 export const ActiveLinkContainer = styled(NavLink)<ActiveLinkContainerProps>`
@@ -26,15 +26,15 @@ export const ActiveLinkContainer = styled(NavLink)<ActiveLinkContainerProps>`
   height: 3rem;
 
   border-radius: 3px;
-  ${({ theme, linkStyle }) =>
-    linkStyle === 'tertiary' &&
+  ${({ theme, type }) =>
+    type === 'tertiary' &&
     css`
       border: 1px solid ${theme['grey-200']};
     `};
 
-  background: ${({ theme, linkStyle }) => theme[ACTIVE_LINK_COLORS[linkStyle]]};
-  color: ${({ theme, linkStyle }) =>
-    linkStyle === 'tertiary' ? theme['grey-200'] : theme.white};
+  background: ${({ theme, type }) => theme[ACTIVE_LINK_COLORS[type]]};
+  color: ${({ theme, type }) =>
+    type === 'tertiary' ? theme['grey-200'] : theme.white};
 
   font-size: 0.8125rem;
   font-weight: 600;
@@ -44,11 +44,10 @@ export const ActiveLinkContainer = styled(NavLink)<ActiveLinkContainerProps>`
   transition: all 0.2s;
 
   &:not(:disabled):hover {
-    background: ${({ theme, linkStyle }) =>
-      theme[ACTIVE_LINK_HOVER_COLORS[linkStyle]]};
+    background: ${({ theme, type }) => theme[ACTIVE_LINK_HOVER_COLORS[type]]};
 
-    ${({ theme, linkStyle }) =>
-      linkStyle === 'tertiary' &&
+    ${({ theme, type }) =>
+      type === 'tertiary' &&
       css`
         color: ${theme.white};
       `};

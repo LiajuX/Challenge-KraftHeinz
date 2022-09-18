@@ -8,6 +8,7 @@ export const LandingContainer = styled.div`
   margin: 0 auto;
 
   main {
+    height: 100vh;
     display: flex;
     align-items: flex-start;
 

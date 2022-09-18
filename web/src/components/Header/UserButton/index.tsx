@@ -1,5 +1,7 @@
 import { SignOut } from 'phosphor-react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
+
+import { useAuth } from '../../../hooks/useAuth'
 
 import * as S from './styles'
 
@@ -9,6 +11,16 @@ interface UserButtonProps {
 }
 
 export function UserButton({ name, avatarURL }: UserButtonProps) {
+  const { signOut } = useAuth()
+
+  const navigate = useNavigate()
+
+  async function handleSignOut() {
+    await signOut()
+
+    navigate('/landing')
+  }
+
   return (
     <NavLink to="landing">
       <S.UserButtonContainer>
@@ -16,7 +28,7 @@ export function UserButton({ name, avatarURL }: UserButtonProps) {
 
         <span>{name}</span>
 
-        <button>
+        <button onClick={handleSignOut}>
           <SignOut weight="bold" size={24} />
         </button>
       </S.UserButtonContainer>

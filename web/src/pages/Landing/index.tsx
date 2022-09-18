@@ -20,7 +20,7 @@ export function Landing() {
               Plataforma <br /> smart para postagem de <br /> tarefas.
             </h1>
 
-            <ActiveLink title="Entrar" linkStyle="primary" to="/signin" />
+            <ActiveLink title="Entrar" type="primary" to="/signin" />
           </section>
 
           <img

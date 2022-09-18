@@ -8,7 +8,7 @@ export const routes: RouteProps[] = [
   {
     title: 'Home',
     icon: 'home',
-    path: '/',
+    path: '/home',
   },
   {
     title: 'Dashboard',
@@ -26,7 +26,7 @@ export const managerRoutes: RouteProps[] = [
   {
     title: 'Home',
     icon: 'home',
-    path: '/',
+    path: '/home',
   },
   {
     title: 'History',

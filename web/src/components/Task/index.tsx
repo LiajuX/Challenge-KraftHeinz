@@ -4,6 +4,8 @@ import { format, isToday, isThisWeek } from 'date-fns'
 import ptBR from 'date-fns/locale/pt-BR'
 import { Alarm } from 'phosphor-react'
 
+import { useAuth } from '../../hooks/useAuth'
+
 import { TaskEvaluationModal } from './TaskEvaluationModal'
 import { Modal } from '../Modal'
 
@@ -51,11 +53,11 @@ const icon = {
 export function Task({ data }: Props) {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
+  const { user } = useAuth()
+
   const colors = useTheme()
 
-  const isManager = true
-
-  const dueDateColor = isManager
+  const dueDateColor = user?.is_manager
     ? colors['grey-300']
     : isToday(data.due_date)
     ? colors['red-500']

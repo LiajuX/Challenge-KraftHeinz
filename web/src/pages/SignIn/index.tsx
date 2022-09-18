@@ -1,3 +1,8 @@
+import { FormEvent, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+
+import { useAuth } from '../../hooks/useAuth'
+
 import { ActiveLink } from '../../components/ActiveLink'
 import { Button } from '../../components/Button'
 import { Footer } from '../../components/Footer'
@@ -9,6 +14,21 @@ import girlImg from '../../assets/girl-running.png'
 import * as S from './styles'
 
 export function SignIn() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+
+  const { user, signIn, isSigningIn } = useAuth()
+
+  const navigate = useNavigate()
+
+  async function handleSignIn(event: FormEvent) {
+    event.preventDefault()
+
+    signIn(email, password)
+
+    navigate('/home')
+  }
+
   return (
     <S.SignInContainer>
       <S.Header>
@@ -21,11 +41,13 @@ export function SignIn() {
         <S.ContentWrapper>
           <form>
             <div className="input-container">
-              <label htmlFor="username">Nome de usuário</label>
+              <label htmlFor="email">E-mail</label>
               <Input
-                id="username"
+                id="email"
                 type="text"
-                placeholder="Insira seu nome de usuário aqui"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Insira seu e-mail aqui"
               />
             </div>
 
@@ -34,16 +56,23 @@ export function SignIn() {
               <Input
                 id="password"
                 type="text"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="Insira sua senha aqui"
               />
             </div>
 
             <div className="buttons-container">
-              <ActiveLink linkStyle="secondary" title="Entrar" to="/" />
+              <Button
+                buttonStyle="secondary"
+                title="entrar"
+                onClick={handleSignIn}
+                isLoading={isSigningIn}
+              />
 
               <Button buttonStyle="primary" title="esqueci minha senha" />
 
-              <ActiveLink linkStyle="tertiary" title="voltar" to="/landing" />
+              <ActiveLink type="tertiary" title="voltar" to="/landing" />
             </div>
           </form>
 

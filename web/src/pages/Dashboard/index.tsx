@@ -1,4 +1,9 @@
 import { useRef, useState } from 'react'
+import { doc, updateDoc } from 'firebase/firestore'
+
+import { database } from '../../services/firebase'
+
+import { useAuth } from '../../hooks/useAuth'
 
 import { BehaviorRadarChart } from '../../components/BehaviorRadarChart'
 import { Button } from '../../components/Button'
@@ -7,13 +12,12 @@ import { RatingStars } from './components/RatingStars'
 
 import * as S from './styles'
 
-const expectations =
-  'Desempenhar ainda mais e principalmente evoluir minhas capacidades administrativas com o foco na liderança de equipe. Continuar a trabalhar minha capacidade comunicativa entre equipe e gerente para melhorar ainda mais!'
-
 export function Dashboard() {
   const userExpectationsInputRef = useRef(null)
 
-  const [userExpectations, setUserExpectations] = useState(expectations)
+  const { user } = useAuth()
+
+  const [userExpectations, setUserExpectations] = useState(user?.expectations)
   const [isEditingUserExpectations, setIsEditingUserExpectations] =
     useState(false)
 
@@ -21,7 +25,13 @@ export function Dashboard() {
     setIsEditingUserExpectations(true)
   }
 
-  function handleConfirmUserExpectationsUpdate() {
+  async function handleConfirmUserExpectationsUpdate() {
+    const userRef = doc(database, 'users', user!.id)
+
+    await updateDoc(userRef, {
+      expectations: userExpectations,
+    })
+
     setIsEditingUserExpectations(false)
   }
 
@@ -33,7 +43,7 @@ export function Dashboard() {
         <section>
           <h3>Seu potencial atual</h3>
 
-          <PerformanceCard potencialValue="B" />
+          <PerformanceCard potencialValue={user!.potential} />
         </section>
 
         <section>
@@ -89,7 +99,7 @@ export function Dashboard() {
                 <strong>Pontuação geral</strong>
 
                 <S.RatingStarsContainer>
-                  <RatingStars value={4.5} />
+                  <RatingStars value={user!.ponctuation} />
                 </S.RatingStarsContainer>
 
                 <p>

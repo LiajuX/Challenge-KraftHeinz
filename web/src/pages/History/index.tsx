@@ -10,39 +10,39 @@ import * as S from './styles'
 
 const employees = [
   {
-    id: '123456789',
-    name: 'Guilherme Carvalho',
-    avatar_url: 'https://github.com/diego3g.png',
-    role: 'marketing',
-    role_title: 'Marketing',
-    potential: 'B',
-    task_amount: 26,
-  },
-  {
     id: '123689',
     name: 'Carol Medeiros',
     avatar_url: 'https://github.com/rafaballerini.png',
+    expectations:
+      'Desempenhar ainda mais e principalmente evoluir minhas capacidades administrativas com o foco na liderança de equipe. Continuar a trabalhar minha capacidade comunicativa entre equipe e gerente para melhorar ainda mais!',
     role: 'dev',
     role_title: 'Desenvolvedora',
     potential: 'A',
+    manager_id: 'e2y3RdvxQ9aeym2nTBgnizh5Qfr2',
     task_amount: 32,
   },
   {
     id: '1234589',
     name: 'Vinicius Amâncio',
     avatar_url: 'https://github.com/luizbatanero.png',
+    expectations:
+      'Desempenhar ainda mais e principalmente evoluir minhas capacidades administrativas com o foco na liderança de equipe. Continuar a trabalhar minha capacidade comunicativa entre equipe e gerente para melhorar ainda mais!',
     role: 'design',
     role_title: 'Designer',
     potential: 'C',
+    manager_id: 'e2y3RdvxQ9aeym2nTBgnizh5Qfr2',
     task_amount: 19,
   },
   {
     id: '345689',
     name: 'Diego Galvão',
+    expectations:
+      'Desempenhar ainda mais e principalmente evoluir minhas capacidades administrativas com o foco na liderança de equipe. Continuar a trabalhar minha capacidade comunicativa entre equipe e gerente para melhorar ainda mais!',
     avatar_url: 'https://avatars.githubusercontent.com/u/4669899?v=4',
     role: 'it',
     role_title: 'TI',
     potential: 'A',
+    manager_id: 'e2y3RdvxQ9aeym2nTBgnizh5Qfr2',
     task_amount: 26,
   },
 ]
@@ -54,6 +54,7 @@ interface TeamMember {
   role: string
   role_title: string
   potential: string
+  manager_id: string
   task_amount: number
 }
 

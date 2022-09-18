@@ -4,6 +4,8 @@ import ptBR from 'date-fns/locale/pt-BR'
 import { Alarm, Plus } from 'phosphor-react'
 import { IoCheckmarkCircleOutline } from 'react-icons/io5'
 
+import { useAuth } from '../../../../hooks/useAuth'
+
 import { Button } from '../../../../components/Button'
 import { Modal } from '../../../../components/Modal'
 import { Subtask } from '../../../../components/Task/TaskEvaluationModal'
@@ -100,7 +102,7 @@ export function NewTaskModal({ onCloseModal }: TaskDetailsModalProps) {
   const [employeeAssignedTo, setEmployeeAssignedTo] = useState('')
   const [taskIcon, setTaskIcon] = useState({} as Icon)
 
-  const isManager = true
+  const { user } = useAuth()
 
   function handleToggleHasSubtasks() {
     setHasSubtasks((state) => !state)
@@ -142,7 +144,7 @@ export function NewTaskModal({ onCloseModal }: TaskDetailsModalProps) {
       <header>
         <strong>Nova entrega</strong>
 
-        {isManager && (
+        {user?.is_manager && (
           <S.DueDate>
             <Alarm weight="bold" size={20} />
 
@@ -185,7 +187,7 @@ export function NewTaskModal({ onCloseModal }: TaskDetailsModalProps) {
         </S.AddFileButton>
       </S.FilesContainer>
 
-      {isManager && (
+      {user?.is_manager && (
         <>
           <span>Subtarefas</span>
 
@@ -272,7 +274,7 @@ export function NewTaskModal({ onCloseModal }: TaskDetailsModalProps) {
         <Button
           title="Postar"
           buttonStyle="secondary"
-          onClick={isManager ? handleCreateTask : handleCreateExtraTask}
+          onClick={user?.is_manager ? handleCreateTask : handleCreateExtraTask}
         />
       </S.ButtonContainer>
     </S.NewTaskContainer>

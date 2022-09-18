@@ -1,16 +1,15 @@
-import { AnchorHTMLAttributes } from 'react'
 import { NavLinkProps } from 'react-router-dom'
 
 import * as S from './styles'
 
 interface Props extends NavLinkProps {
   title: string
-  linkStyle: 'primary' | 'secondary' | 'tertiary'
+  type: 'primary' | 'secondary' | 'tertiary'
 }
 
-export function ActiveLink({ title, linkStyle, ...rest }: Props) {
+export function ActiveLink({ title, type, ...rest }: Props) {
   return (
-    <S.ActiveLinkContainer linkStyle={linkStyle} {...rest}>
+    <S.ActiveLinkContainer type={type} {...rest}>
       {title}
     </S.ActiveLinkContainer>
   )

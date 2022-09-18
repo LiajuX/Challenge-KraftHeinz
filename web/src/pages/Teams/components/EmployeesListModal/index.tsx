@@ -67,8 +67,6 @@ export function EmployeesListModal({
   const [searchListData, setSearchListData] = useState<Employee[]>(employees)
   const [search, setSearch] = useState('')
 
-  const isManager = true
-
   function handleSelectEmployee(employee: Employee) {
     setSelectedEmployee(employee)
 

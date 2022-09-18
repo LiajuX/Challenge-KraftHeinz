@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTheme } from 'styled-components'
+
+import { useAuth } from '../../hooks/useAuth'
 
 import { Task, TaskType } from '../../components/Task'
 import { PerformanceCard } from '../../components/PerformanceCard'
@@ -71,9 +73,11 @@ const tasks: TaskType[] = [
 export function Home() {
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false)
 
+  const { user } = useAuth()
+
   const colors = useTheme()
 
-  const isManager = true
+  const firstName = user?.name.split(' ')[0]
 
   function handleOpenNewTaskModal() {
     setIsNewTaskModalOpen(true)
@@ -86,7 +90,14 @@ export function Home() {
   return (
     <>
       <S.HomeContainer>
-        <h1>Bem vinda, Jakeliny!</h1>
+        <h1>
+          {user?.genre === 'other'
+            ? 'Olá, '
+            : user?.genre === 'male'
+            ? 'Bem-vindo'
+            : 'Bem-vinda'}
+          , {firstName}
+        </h1>
 
         <S.ContentWrapper>
           <section>
@@ -100,9 +111,9 @@ export function Home() {
           <section>
             <h3>Seu potencial atual</h3>
 
-            <PerformanceCard potencialValue="B" />
+            <PerformanceCard potencialValue={user!.potential} />
 
-            {isManager && (
+            {user?.is_manager && (
               <S.ChartContainer>
                 <h3>O que dizem de você</h3>
 
@@ -115,7 +126,7 @@ export function Home() {
 
       <RoundButton>
         <MenuOptionButton
-          title={isManager ? 'Nova tarefa' : 'Nova tarefa extra'}
+          title={user?.is_manager ? 'Nova tarefa' : 'Nova tarefa extra'}
           icon="task"
           color={colors['orange-500']}
           onClick={handleOpenNewTaskModal}

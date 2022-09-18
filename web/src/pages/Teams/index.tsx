@@ -4,6 +4,8 @@ import { useTheme } from 'styled-components'
 import { format, differenceInDays, addDays } from 'date-fns'
 import ptBR from 'date-fns/locale/pt-BR'
 
+import { useAuth } from '../../hooks/useAuth'
+
 import { TeamMemberCard } from '../../components/TeamMemberCard'
 import { SearchBar } from '../../components/SearchBar'
 import { Button } from '../../components/Button'
@@ -123,9 +125,9 @@ export function Teams() {
   const [selectedEmployee, setSelectedEmployee] = useState({} as Employee)
   const [search, setSearch] = useState('')
 
-  const colors = useTheme()
+  const { user } = useAuth()
 
-  const isManager = true
+  const colors = useTheme()
 
   console.log(selectedEmployee)
 
@@ -217,7 +219,7 @@ export function Teams() {
                       <S.DisabledButton>avaliar</S.DisabledButton>
                     )}
 
-                    {isManager ? (
+                    {user?.is_manager ? (
                       <TeamMemberManagerEvaluationModal
                         member={currentMember}
                         isOpen={isModalOpen}
@@ -244,7 +246,7 @@ export function Teams() {
         </S.ContentWrapper>
       </S.TeamsContainer>
 
-      {isManager && (
+      {user?.is_manager && (
         <RoundButton>
           {isEditingTeams ? (
             <MenuOptionButton

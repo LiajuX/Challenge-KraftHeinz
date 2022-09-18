@@ -1,4 +1,13 @@
-import styled, { css } from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
+
+const rotate = keyframes`
+  from {
+    transform: rotate(0deg)
+  }
+  to {
+    transform: rotate(360deg)
+  }
+`
 
 const BUTTON_COLORS = {
   primary: 'red-500',
@@ -46,5 +55,11 @@ export const ButtonContainer = styled.button<ButtonContainerProps>`
       css`
         color: ${theme.white};
       `};
+  }
+
+  svg {
+    color: ${({ theme }) => theme.white};
+
+    animation: ${rotate} 2s linear infinite;
   }
 `

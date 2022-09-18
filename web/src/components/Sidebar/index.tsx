@@ -1,6 +1,8 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import { FiSettings } from 'react-icons/fi'
 
+import { useAuth } from '../../hooks/useAuth'
+
 import { managerRoutes, routes } from '../../utils/sidebarData'
 
 import { Icon } from '../Icon'
@@ -8,7 +10,7 @@ import { Icon } from '../Icon'
 import * as S from './styles'
 
 export function Sidebar() {
-  const isManager = true
+  const { user } = useAuth()
 
   const currentRoute = useLocation()
   const { pathname } = currentRoute
@@ -16,7 +18,7 @@ export function Sidebar() {
   return (
     <S.SidebarContainer>
       <S.NavContainer>
-        {!isManager &&
+        {!user?.is_manager &&
           routes.map((route, index) => (
             <S.NavItem
               key={route.title}
@@ -29,7 +31,7 @@ export function Sidebar() {
             </S.NavItem>
           ))}
 
-        {isManager &&
+        {user?.is_manager &&
           managerRoutes.map((route, index) => (
             <S.NavItem
               key={route.title}
