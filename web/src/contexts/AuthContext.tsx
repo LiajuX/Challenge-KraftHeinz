@@ -39,24 +39,18 @@ export function AuthContextProvider(props: AuthContextProviderProps) {
   const [user, setUser] = useState<User | null>(null)
   const [isSigningIn, setIsSigningIn] = useState(false)
 
+  const userLocalStorageKey = '@kraftheinz:user'
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (signedUser) => {
       if (signedUser) {
-        const { uid } = signedUser
+        const userLocalData = localStorage.getItem(userLocalStorageKey)
+        const formattedLocalData = userLocalData && JSON.parse(userLocalData)
 
-        const userRef = doc(database, 'users', uid)
+        setUser(formattedLocalData)
 
-        const response = await getDoc(userRef)
-
-        if (response.exists()) {
-          const data = response.data() as User
-
-          setUser({
-            ...data,
-            id: uid,
-            role_insensitive: data.role.toLocaleLowerCase().trim(),
-          })
-        }
+        /* const { uid } = signedUser
+        const userRef = doc(database, 'users', uid) */
       }
     })
 
@@ -77,11 +71,15 @@ export function AuthContextProvider(props: AuthContextProviderProps) {
         if (response.exists()) {
           const data = response.data() as User
 
-          setUser({
+          const userData = {
             ...data,
             id: account.user.uid,
             role_insensitive: data.role.toLocaleLowerCase().trim(),
-          })
+          }
+
+          setUser(userData)
+
+          localStorage.setItem(userLocalStorageKey, JSON.stringify(userData))
         } else {
           setUser(null)
         }
@@ -98,6 +96,7 @@ export function AuthContextProvider(props: AuthContextProviderProps) {
     await signOutFromApp(auth)
 
     setUser(null)
+    localStorage.removeItem(userLocalStorageKey)
   }
 
   return (

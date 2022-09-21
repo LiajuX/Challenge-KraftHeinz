@@ -29,9 +29,7 @@ const options = {
   },
   options: {
     scales: {
-      y: {
-        min: 0,
-      },
+      display: false,
     },
   },
 }
@@ -49,7 +47,7 @@ export function BehaviorRadarChart() {
     ],
     datasets: [
       {
-        data: [3, 4, 6, 5, 6],
+        data: [6, 8, 12, 10, 12],
         backgroundColor: colors['green-500-transparency'],
         borderColor: colors['green-500'],
         borderWidth: 3,

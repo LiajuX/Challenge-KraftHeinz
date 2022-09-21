@@ -1,8 +1,8 @@
 import { Outlet } from 'react-router-dom'
-import { CircleNotch } from 'phosphor-react'
 
 import { useAuth } from '../../hooks/useAuth'
 
+import { Loading } from '../../components/Loading'
 import { Footer } from '../../components/Footer'
 import { Header } from '../../components/Header'
 import { Sidebar } from '../../components/Sidebar'
@@ -26,7 +26,7 @@ export function DefaultLayout() {
         </main>
       ) : (
         <S.EmptyLayoutContainer>
-          <CircleNotch size={80} />
+          <Loading size={80} />
         </S.EmptyLayoutContainer>
       )}
     </S.DefaultLayoutContainer>

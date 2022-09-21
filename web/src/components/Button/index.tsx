@@ -1,5 +1,7 @@
 import { ButtonHTMLAttributes } from 'react'
-import { CircleNotch } from 'phosphor-react'
+import { useTheme } from 'styled-components'
+
+import { Loading } from '../Loading'
 
 import { ButtonContainer } from './styles'
 
@@ -10,9 +12,18 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export function Button({ title, isLoading, buttonStyle, ...rest }: Props) {
+  const colors = useTheme()
+
   return (
-    <ButtonContainer buttonStyle={buttonStyle} {...rest}>
-      {isLoading ? <CircleNotch size={24} /> : title}
+    <ButtonContainer buttonStyle={buttonStyle} disabled={isLoading} {...rest}>
+      {isLoading ? (
+        <Loading
+          size={24}
+          color={buttonStyle === 'tertiary' ? colors['grey-200'] : colors.white}
+        />
+      ) : (
+        title
+      )}
     </ButtonContainer>
   )
 }

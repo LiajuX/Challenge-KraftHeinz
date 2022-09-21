@@ -1,14 +1,5 @@
 import styled, { css, keyframes } from 'styled-components'
 
-const rotate = keyframes`
-  from {
-    transform: rotate(0deg)
-  }
-  to {
-    transform: rotate(360deg)
-  }
-`
-
 const BUTTON_COLORS = {
   primary: 'red-500',
   secondary: 'green-500',
@@ -57,9 +48,7 @@ export const ButtonContainer = styled.button<ButtonContainerProps>`
       `};
   }
 
-  svg {
-    color: ${({ theme }) => theme.white};
-
-    animation: ${rotate} 2s linear infinite;
+  &:disabled {
+    cursor: not-allowed;
   }
 `

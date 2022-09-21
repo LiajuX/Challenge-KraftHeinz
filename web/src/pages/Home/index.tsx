@@ -1,9 +1,18 @@
 import { useEffect, useState } from 'react'
 import { useTheme } from 'styled-components'
+import {
+  collection,
+  onSnapshot,
+  orderBy,
+  query,
+  where,
+} from 'firebase/firestore'
+
+import { database } from '../../services/firebase'
 
 import { useAuth } from '../../hooks/useAuth'
 
-import { Task, TaskType } from '../../components/Task'
+import { Subtask, Task, TaskType } from '../../components/Task'
 import { PerformanceCard } from '../../components/PerformanceCard'
 import { BehaviorRadarChart } from '../../components/BehaviorRadarChart'
 import { RoundButton } from '../../components/RoundButton'
@@ -12,66 +21,11 @@ import { Modal } from '../../components/Modal'
 import { NewTaskModal } from './components/NewTaskModal'
 
 import * as S from './styles'
-
-const tasks: TaskType[] = [
-  {
-    id: '1234568',
-    title: 'Imagem para publicação no Facebook sobre a Independência do Brasil',
-    isSubtask: false,
-    description:
-      'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Sint, doloribus. Aspernatur quibusdam facere quas, quasi unde eius rerum suscipit, alias saepe, ipsam officiis recusandae non architecto explicabo laboriosam veniam consequuntur.',
-    due_date: new Date(),
-    icon: 'camera',
-    assigned_to: 'guilhermec',
-  },
-  {
-    id: '1234567',
-    title: 'Vídeo para o criativo da campanha de marketing do Facebook Ads',
-    isSubtask: false,
-    description:
-      'Auctor augue mauris augue neque gravida in. Consectetur adipiscing elit ut aliquam purus sit. Sed sed risus pretium quam. Sit amet consectetur adipiscing elit duis tristique. Purus sit amet luctus venenatis lectus magna. Commodo ullamcorper a lacus vestibulum sed arcu non. Diam in arcu cursus euismod quis viverra. Interdum posuere lorem ipsum dolor sit amet. Arcu non odio euismod lacinia at quis risus sed vulputate. Justo donec enim diam vulputate ut pharetra sit amet. Aenean euismod elementum nisi quis eleifend quam adipiscing vitae proin. Orci a scelerisque purus semper eget duis at tellus. Sit amet consectetur adipiscing elit ut aliquam.',
-    subtasks: [
-      {
-        id: '123456',
-        title: 'Entrega do pacote de fotos 1',
-        parent_task_title:
-          'Vídeo para o criativo da campanha de marketing do Facebook Ads',
-        isSubtask: true,
-        description:
-          'Auctor augue mauris augue neque gravida in. Consectetur adipiscing elit ut aliquam purus sit. Sed sed risus pretium quam. Sit amet consectetur adipiscing elit duis tristique. Purus sit amet luctus venenatis lectus magna. Commodo ullamcorper a lacus vestibulum sed arcu non. Diam in arcu cursus euismod quis viverra. Interdum posuere lorem ipsum dolor sit amet. Arcu non odio euismod lacinia at quis risus sed vulputate. Justo donec enim diam vulputate ut pharetra sit amet. Aenean euismod elementum nisi quis eleifend quam adipiscing vitae proin. Orci a scelerisque purus semper eget duis at tellus. Sit amet consectetur adipiscing elit ut aliquam.',
-        due_date: new Date(2022, 8, 1),
-        assigned_to: 'guilhermec',
-      },
-      {
-        id: '123066',
-        title: 'Entrega do pacote de fotos 2',
-        parent_task_title:
-          'Vídeo para o criativo da campanha de marketing do Facebook Ads',
-        isSubtask: true,
-        description:
-          'Auctor augue mauris augue neque gravida in. Consectetur adipiscing elit ut aliquam purus sit. Sed sed risus pretium quam. Sit amet consectetur adipiscing elit duis tristique. Purus sit amet luctus venenatis lectus magna. Commodo ullamcorper a lacus vestibulum sed arcu non. Diam in arcu cursus euismod quis viverra. Interdum posuere lorem ipsum dolor sit amet. Arcu non odio euismod lacinia at quis risus sed vulputate. Justo donec enim diam vulputate ut pharetra sit amet. Aenean euismod elementum nisi quis eleifend quam adipiscing vitae proin. Orci a scelerisque purus semper eget duis at tellus. Sit amet consectetur adipiscing elit ut aliquam.',
-        due_date: new Date(2022, 8, 2),
-        assigned_to: 'guilhermec',
-      },
-    ],
-    due_date: new Date(2022, 8, 2),
-    icon: 'video',
-    assigned_to: 'guilhermec',
-  },
-  {
-    id: '123456',
-    title: 'Relatório do desempenho da equipe semanal',
-    isSubtask: false,
-    description:
-      'Desenvolver um relatório com os desempenhos individuais de cada membro da equipe junto com a opinião do potencial de cada um.',
-    due_date: new Date(2022, 9, 23),
-    icon: 'report',
-    assigned_to: 'guilhermec',
-  },
-]
+import { Loading } from '../../components/Loading'
 
 export function Home() {
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false)
+  const [tasks, setTasks] = useState<TaskType[]>([])
 
   const { user } = useAuth()
 
@@ -86,6 +40,49 @@ export function Home() {
   function handleCLoseNewTaskModal() {
     setIsNewTaskModalOpen(false)
   }
+
+  useEffect(() => {
+    const tasksQuery = query(
+      collection(database, 'tasks'),
+      where('assigned_to', '==', user!.id),
+      orderBy('due_date', user!.is_manager ? 'desc' : 'asc'),
+    )
+
+    const unsubscribe = onSnapshot(tasksQuery, (querySnapshot) => {
+      const storedTasks: TaskType[] = []
+      const subtasks: Subtask[] = []
+
+      querySnapshot.forEach((doc) => {
+        if (doc.data().subtasks) {
+          doc.data().subtasks.forEach((subtask: any) => {
+            const subtaskDataFormatted = {
+              ...subtask,
+              due_date: subtask.due_date.toDate(),
+            }
+
+            subtasks.push(subtaskDataFormatted)
+          })
+        }
+
+        const task = {
+          ...doc.data(),
+          id: doc.id,
+          due_date: doc.data().due_date.toDate(),
+          subtasks,
+        } as TaskType
+
+        storedTasks.push(task)
+      })
+
+      setTasks(storedTasks)
+
+      return () => {
+        unsubscribe()
+      }
+    })
+  }, [user])
+
+  console.log(tasks)
 
   return (
     <>
@@ -103,9 +100,11 @@ export function Home() {
           <section>
             <h3>Entregas pendentes</h3>
 
-            {tasks.map((task) => (
-              <Task key={task.id} data={task} />
-            ))}
+            {tasks ? (
+              tasks.map((task) => <Task key={task.id} data={task} />)
+            ) : (
+              <Loading size={64} />
+            )}
           </section>
 
           <section>
