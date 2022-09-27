@@ -1,38 +1,29 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { format } from 'date-fns'
 import ptBR from 'date-fns/locale/pt-BR'
-import { Alarm, Plus } from 'phosphor-react'
+import { Alarm } from 'phosphor-react'
 
 import { useAuth } from '../../../hooks/useAuth'
 
+import { FileButton } from '../../FileButton'
 import { StaffContent } from './StaffContent'
 import { ManagerContent } from './ManagerContent'
 import { Button } from '../../Button'
-import { Modal } from '../../Modal'
 
 import * as S from './styles'
 
-export interface Subtask {
-  title: string
-  parent_task_title: string
-  isSubtask: boolean
-  description: string
-  due_date: Date | null
-  files?: []
-}
-
-export interface TaskDetailsProps {
+export interface TaskProps {
   title: string
   description: string
   parent_task_title?: string
   due_date: Date | null
   files?: []
-  isSubtask: boolean
-  subtasks?: Subtask[]
+  is_subtask?: boolean
+  subtasks?: TaskProps[]
 }
 
 interface TaskDetailsModalProps {
-  data: TaskDetailsProps
+  data: TaskProps
   onCloseModal: () => void
 }
 
@@ -40,60 +31,64 @@ export function TaskEvaluationModal({
   data,
   onCloseModal,
 }: TaskDetailsModalProps) {
-  const [isSubtaskModalOpen, setIsSubtaskModalOpen] = useState(false)
-  const [subtaskData, setSubtaskData] = useState<Subtask>({} as Subtask)
+  const [taskData, setTaskData] = useState<TaskProps>(data)
 
   const { user } = useAuth()
 
-  const taskHeader = data.isSubtask
-    ? data.parent_task_title!.split(' ').length <= 3
-      ? data.parent_task_title
-      : data.parent_task_title!.split(' ').slice(0, 3).join(' ') +
-        '...' +
-        ' / ' +
-        data.title
-    : 'Entrega'
+  const parentTask = data
 
-  function handleOpenSubtaskEvaluationModal(task: Subtask) {
-    setSubtaskData(task)
-    setIsSubtaskModalOpen(true)
-  }
-
-  function handleCLoseSubtaskEvaluationModal() {
-    setIsSubtaskModalOpen(false)
-  }
+  const parentTaskShortTitle =
+    parentTask.title.split(' ').length <= 3
+      ? parentTask.title
+      : parentTask.title.split(' ').slice(0, 3).join(' ') + '...'
 
   return (
     <S.TaskDetailsContainer>
       <header>
-        <strong>{taskHeader}</strong>
+        <div>
+          {taskData.is_subtask && (
+            <>
+              <strong
+                onClick={() => setTaskData(parentTask)}
+                style={{ cursor: 'pointer' }}
+              >
+                {parentTaskShortTitle}
+              </strong>
+              <span> / </span>
+            </>
+          )}
+
+          <strong>{taskData.is_subtask ? taskData.title : 'Entrega'}</strong>
+        </div>
 
         <S.DueDate>
           <Alarm weight="bold" size={20} />
 
-          {data.due_date && (
-            <time>{format(data.due_date, 'dd/MM/yyyy', { locale: ptBR })}</time>
+          {taskData.due_date && (
+            <time>
+              {format(taskData.due_date, 'dd/MM/yyyy', { locale: ptBR })}
+            </time>
           )}
         </S.DueDate>
       </header>
 
-      <h3>{data.title}</h3>
+      <h3>{taskData.title}</h3>
 
-      {data.subtasks ? (
+      {taskData.subtasks ? (
         <>
           <S.TaskInfo>
             <span>Descrição</span>
 
-            <p>{data.description}</p>
+            <p>{taskData.description}</p>
           </S.TaskInfo>
 
           <span>Subtarefas</span>
           <S.SubtasksContainer>
-            {data.subtasks.map((subtask, index) => (
+            {taskData.subtasks.map((subtask, index) => (
               <>
                 <S.SubtaskButton
                   key={`${subtask.title}-${subtask.due_date}`}
-                  onClick={() => handleOpenSubtaskEvaluationModal(subtask)}
+                  onClick={() => setTaskData(subtask)}
                 >
                   <header>
                     <strong>Subtarefa {index + 1}</strong>
@@ -112,19 +107,8 @@ export function TaskEvaluationModal({
 
                   <h3>{subtask.title}</h3>
                 </S.SubtaskButton>
-
-                <Modal
-                  isOpen={isSubtaskModalOpen}
-                  onCloseModal={handleCLoseSubtaskEvaluationModal}
-                >
-                  <TaskEvaluationModal
-                    onCloseModal={handleCLoseSubtaskEvaluationModal}
-                    data={subtaskData}
-                  />
-                </Modal>
               </>
             ))}
-
             <S.ButtonContainer>
               <Button
                 title="Concluir"
@@ -144,11 +128,9 @@ export function TaskEvaluationModal({
             <span>Arquivos</span>
           </S.TaskInfo>
 
-          <S.ButtonsContainer>
-            <S.AddFileButton>
-              <Plus size={18} />
-            </S.AddFileButton>
-          </S.ButtonsContainer>
+          <S.FilesContainer>
+            {data.files ? <FileButton /> : <FileButton />}
+          </S.FilesContainer>
 
           <hr />
 

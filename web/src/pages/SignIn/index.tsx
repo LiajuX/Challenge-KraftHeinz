@@ -55,7 +55,7 @@ export function SignIn() {
               <label htmlFor="password">Senha</label>
               <Input
                 id="password"
-                type="text"
+                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Insira sua senha aqui"

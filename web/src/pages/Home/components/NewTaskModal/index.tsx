@@ -8,13 +8,14 @@ import { useAuth } from '../../../../hooks/useAuth'
 
 import { Button } from '../../../../components/Button'
 import { Modal } from '../../../../components/Modal'
-import { Subtask } from '../../../../components/Task/TaskEvaluationModal'
+import { FileButton } from '../../../../components/FileButton'
 
 import reportImg from '../../../../assets/report.svg'
 import cameraImg from '../../../../assets/camera.svg'
 import videoImg from '../../../../assets/video.svg'
 
 import * as S from './styles'
+import { TaskProps } from '../../../../components/Task/TaskEvaluationModal'
 
 interface TaskDetailsModalProps {
   onCloseModal: () => void
@@ -31,7 +32,7 @@ interface Employee {
   username: string
   avatar_url: string
   role: string
-  role_title: string
+  role_insensitive: string
   potential: 'A' | 'B' | 'C'
   task_amount: number
   last_evaluation: Date
@@ -52,42 +53,6 @@ const icons: Icon[] = [
   },
 ]
 
-const teamMembers: Employee[] = [
-  {
-    id: '1234789',
-    name: 'Diego Galvão',
-    username: 'diego3g',
-    avatar_url: 'https://avatars.githubusercontent.com/u/4669899?v=4',
-    role: 'it',
-    role_title: 'TI',
-    potential: 'A',
-    task_amount: 26,
-    last_evaluation: new Date(2022, 6, 18),
-  },
-  {
-    id: '1239',
-    name: 'Carol Medeiros',
-    username: 'carolmedeiros',
-    avatar_url: 'https://github.com/rafaballerini.png',
-    role: 'dev',
-    role_title: 'Desenvolvedora',
-    potential: 'A',
-    task_amount: 32,
-    last_evaluation: new Date(2022, 6, 20),
-  },
-  {
-    id: '12389',
-    name: 'Vinicius Amâncio',
-    username: 'viniciusamancio',
-    avatar_url: 'https://github.com/luizbatanero.png',
-    role: 'design',
-    role_title: 'Designer',
-    potential: 'C',
-    task_amount: 19,
-    last_evaluation: new Date(2022, 7, 24),
-  },
-]
-
 const username = 'jakelinycarvalho'
 
 export function NewTaskModal({ onCloseModal }: TaskDetailsModalProps) {
@@ -95,7 +60,7 @@ export function NewTaskModal({ onCloseModal }: TaskDetailsModalProps) {
   const [dueDate, setDueDate] = useState<null | Date>(null)
   const [description, setDescription] = useState('')
   const [hasSubtasks, setHasSubtasks] = useState(false)
-  const [subtasks, setSubtasks] = useState<Subtask[]>([])
+  const [subtasks, setSubtasks] = useState<TaskProps[]>([])
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('')
   const [newSubtaskDescription, setNewSubtaskDescription] = useState('')
   const [newSubtaskDueDate, setNewSubtaskDueDate] = useState<null | Date>(null)
@@ -182,9 +147,7 @@ export function NewTaskModal({ onCloseModal }: TaskDetailsModalProps) {
       <span>Arquivos</span>
 
       <S.FilesContainer>
-        <S.AddFileButton>
-          <Plus size={18} />
-        </S.AddFileButton>
+        <FileButton />
       </S.FilesContainer>
 
       {user?.is_manager && (
@@ -234,7 +197,7 @@ export function NewTaskModal({ onCloseModal }: TaskDetailsModalProps) {
           <span>Colaborador</span>
 
           <S.ImagesContainer>
-            {teamMembers.map((teamMember) => (
+            {/* {teamMembers.map((teamMember) => (
               <S.AvatarContainer
                 key={teamMember.name}
                 isActive={employeeAssignedTo === teamMember.username}
@@ -246,7 +209,7 @@ export function NewTaskModal({ onCloseModal }: TaskDetailsModalProps) {
                   <IoCheckmarkCircleOutline size={58} />
                 )}
               </S.AvatarContainer>
-            ))}
+            ))} */}
           </S.ImagesContainer>
         </>
       )}

@@ -7,6 +7,21 @@ export const GlobalStyle = createGlobalStyle`
     box-sizing: border-box;
   }
 
+  @media only screen and (max-width: 1024px) {
+    html {
+      font-size: 93.75%;
+    }
+  }
+
+  @media only screen and (max-width: 768px) {
+    html {
+      font-size: 87.5%;
+    }
+  }
+
+  @media only screen and (max-width: 640px) {
+  }
+
   :focus {
     outline: 0;
   }

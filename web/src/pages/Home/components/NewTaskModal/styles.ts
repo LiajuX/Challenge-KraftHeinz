@@ -118,18 +118,6 @@ export const FilesContainer = styled.div`
   margin: 1.0625rem 0 2.125rem;
 `
 
-export const AddFileButton = styled.button`
-  flex: 1;
-
-  height: 4.5rem;
-
-  border: 2px solid ${({ theme }) => theme['grey-100']};
-  border-radius: 9px;
-
-  color: ${({ theme }) => theme['grey-200']};
-  background: ${({ theme }) => theme.white};
-`
-
 interface CheckboxProps {
   isActive: boolean
 }

@@ -7,6 +7,19 @@ export const TaskDetailsContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
+
+    display: flex;
+
+    span {
+      display: inline-block;
+
+      margin: 0 0.5rem;
+
+      color: ${({ theme }) => theme['grey-200']};
+
+      font-size: 1.1875rem;
+      font-weight: bold;
+    }
   }
 
   strong {
@@ -88,23 +101,11 @@ export const TaskInfo = styled.div`
   padding-top: 1.0625rem;
 `
 
-export const ButtonsContainer = styled.div`
+export const FilesContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
 
   margin-top: 1.0625rem;
-`
-
-export const AddFileButton = styled.button`
-  flex: 1;
-
-  height: 4.5rem;
-
-  border: 2px solid ${({ theme }) => theme['grey-100']};
-  border-radius: 9px;
-
-  color: ${({ theme }) => theme['grey-200']};
-  background: ${({ theme }) => theme.white};
 `
 
 export const DueDate = styled.div`

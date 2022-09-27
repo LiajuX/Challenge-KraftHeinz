@@ -12,6 +12,7 @@ import { database } from '../../services/firebase'
 
 import { useAuth } from '../../hooks/useAuth'
 
+import { Loading } from '../../components/Loading'
 import { Subtask, Task, TaskType } from '../../components/Task'
 import { PerformanceCard } from '../../components/PerformanceCard'
 import { BehaviorRadarChart } from '../../components/BehaviorRadarChart'
@@ -21,7 +22,6 @@ import { Modal } from '../../components/Modal'
 import { NewTaskModal } from './components/NewTaskModal'
 
 import * as S from './styles'
-import { Loading } from '../../components/Loading'
 
 export function Home() {
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false)
@@ -33,6 +33,8 @@ export function Home() {
 
   const firstName = user?.name.split(' ')[0]
 
+  const tasksLocalStorageKey = '@kraftheinz:tasks'
+
   function handleOpenNewTaskModal() {
     setIsNewTaskModalOpen(true)
   }
@@ -42,11 +44,17 @@ export function Home() {
   }
 
   useEffect(() => {
-    const tasksQuery = query(
-      collection(database, 'tasks'),
-      where('assigned_to', '==', user!.id),
-      orderBy('due_date', user!.is_manager ? 'desc' : 'asc'),
-    )
+    const tasksQuery = user!.is_manager
+      ? query(
+          collection(database, 'tasks'),
+          where('managed_by', '==', user!.id),
+          orderBy('finished_date', 'desc'),
+        )
+      : query(
+          collection(database, 'tasks'),
+          where('assigned_to', '==', user!.id),
+          orderBy('due_date', 'asc'),
+        )
 
     const unsubscribe = onSnapshot(tasksQuery, (querySnapshot) => {
       const storedTasks: TaskType[] = []
@@ -68,21 +76,23 @@ export function Home() {
           ...doc.data(),
           id: doc.id,
           due_date: doc.data().due_date.toDate(),
-          subtasks,
+          subtasks: doc.data().subtasks && subtasks,
         } as TaskType
 
         storedTasks.push(task)
       })
 
-      setTasks(storedTasks)
+      const tasksLocalData = localStorage.getItem(tasksLocalStorageKey)
+      const formattedLocalData = tasksLocalData && JSON.parse(tasksLocalData)
+
+      setTasks(storedTasks || formattedLocalData)
+      localStorage.setItem(tasksLocalStorageKey, JSON.stringify(storedTasks))
 
       return () => {
         unsubscribe()
       }
     })
   }, [user])
-
-  console.log(tasks)
 
   return (
     <>

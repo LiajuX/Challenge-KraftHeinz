@@ -1,28 +1,24 @@
 import styled, { css } from 'styled-components'
 
-export const EmployeesListContainer = styled.div`
-  padding: 1.75rem 4.875rem 2.375rem;
-
-  strong {
-    color: ${({ theme }) => theme['grey-300']};
-
-    font-size: 1rem;
-  }
-
-  h3 {
-    margin: 1.75rem 0 2rem;
-
-    color: ${({ theme }) => theme['blue-800']};
-
-    font-size: 1.25rem;
-  }
-`
+export const EmployeesListContainer = styled.div``
 
 export const TeamMembersContainer = styled.div`
+  height: 20rem;
+
   margin: 0.75rem 0 3.25rem;
+
+  overflow-y: scroll;
+
+  ::-webkit-scrollbar {
+    width: 0px;
+  }
 `
 
-export const TeamMemberButton = styled.button`
+interface TeamMemberButtonProp {
+  isActive: boolean
+}
+
+export const TeamMemberButton = styled.button<TeamMemberButtonProp>`
   display: grid;
   grid-template-columns: 5fr 2fr;
 
@@ -39,9 +35,17 @@ export const TeamMemberButton = styled.button`
   transition: all 0.2s;
   box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
 
-  &:hover {
-    border: 2px solid ${({ theme }) => theme['grey-100']};
-  }
+  ${({ isActive, theme }) =>
+    isActive
+      ? css`
+          background: ${theme['grey-100']};
+          border: 2px solid ${theme.white};
+        `
+      : css`
+          &:hover {
+            border: 2px solid ${({ theme }) => theme['grey-100']};
+          }
+        `}
 
   img {
     width: 2.875rem;
@@ -103,4 +107,12 @@ export const Role = styled.div<RoleProps>`
     font-weight: bold;
     text-fill-color: transparent;
   }
+`
+
+export const ButtonContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 3rem;
 `

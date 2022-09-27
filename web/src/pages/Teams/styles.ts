@@ -3,6 +3,7 @@ import styled from 'styled-components'
 export const TeamsContainer = styled.div`
   width: 100vw;
   max-width: 1120px;
+  min-height: 100vh;
 
   margin: 0 auto;
   padding: 3.25rem 0 8rem;
@@ -42,6 +43,10 @@ export const TeamContainer = styled.div`
     color: ${({ theme }) => theme['grey-300']};
 
     font-size: 1.25rem;
+
+    &:first-child {
+      margin-top: -1.5625rem;
+    }
   }
 `
 

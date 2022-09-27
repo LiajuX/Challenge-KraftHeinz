@@ -1,6 +1,6 @@
 import { ButtonHTMLAttributes } from 'react'
 import { useTheme } from 'styled-components'
-import { FiSettings } from 'react-icons/fi'
+import { PencilSimple } from 'phosphor-react'
 
 import { Icon } from '../../Icon'
 
@@ -10,7 +10,7 @@ interface MenuOptionButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement> {
   title: string
   color: string
-  icon: 'task' | 'settings' | 'group'
+  icon: 'task' | 'pen' | 'group'
 }
 
 export function MenuOptionButton({
@@ -26,8 +26,8 @@ export function MenuOptionButton({
       {title}
 
       <S.IconContainer color={color}>
-        {icon === 'settings' ? (
-          <FiSettings color={colors.white} size={32} />
+        {icon === 'pen' ? (
+          <PencilSimple color={colors.white} weight="bold" size={32} />
         ) : (
           <Icon icon={icon} size={32} />
         )}

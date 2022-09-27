@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useTheme } from 'styled-components'
+import { collection, onSnapshot, query, where } from 'firebase/firestore'
+
+import { useAuth } from '../../hooks/useAuth'
+
+import { database } from '../../services/firebase'
+import { User } from '../../contexts/AuthContext'
 
 import { SatisfactionEmoji } from '../../components/SatisfactionEmoji'
 import { TeamMemberCard } from '../../components/TeamMemberCard'
@@ -8,63 +14,17 @@ import { SearchBar } from '../../components/SearchBar'
 
 import * as S from './styles'
 
-const employees = [
-  {
-    id: '123689',
-    name: 'Carol Medeiros',
-    avatar_url: 'https://github.com/rafaballerini.png',
-    expectations:
-      'Desempenhar ainda mais e principalmente evoluir minhas capacidades administrativas com o foco na liderança de equipe. Continuar a trabalhar minha capacidade comunicativa entre equipe e gerente para melhorar ainda mais!',
-    role: 'dev',
-    role_title: 'Desenvolvedora',
-    potential: 'A',
-    manager_id: 'e2y3RdvxQ9aeym2nTBgnizh5Qfr2',
-    task_amount: 32,
-  },
-  {
-    id: '1234589',
-    name: 'Vinicius Amâncio',
-    avatar_url: 'https://github.com/luizbatanero.png',
-    expectations:
-      'Desempenhar ainda mais e principalmente evoluir minhas capacidades administrativas com o foco na liderança de equipe. Continuar a trabalhar minha capacidade comunicativa entre equipe e gerente para melhorar ainda mais!',
-    role: 'design',
-    role_title: 'Designer',
-    potential: 'C',
-    manager_id: 'e2y3RdvxQ9aeym2nTBgnizh5Qfr2',
-    task_amount: 19,
-  },
-  {
-    id: '345689',
-    name: 'Diego Galvão',
-    expectations:
-      'Desempenhar ainda mais e principalmente evoluir minhas capacidades administrativas com o foco na liderança de equipe. Continuar a trabalhar minha capacidade comunicativa entre equipe e gerente para melhorar ainda mais!',
-    avatar_url: 'https://avatars.githubusercontent.com/u/4669899?v=4',
-    role: 'it',
-    role_title: 'TI',
-    potential: 'A',
-    manager_id: 'e2y3RdvxQ9aeym2nTBgnizh5Qfr2',
-    task_amount: 26,
-  },
-]
-
-interface TeamMember {
-  id: string
-  name: string
-  avatar_url: string
-  role: string
-  role_title: string
-  potential: string
-  manager_id: string
-  task_amount: number
-}
-
 export function History() {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [data, setData] = useState<TeamMember[]>(employees)
-  const [searchListData, setSearchListData] = useState<TeamMember[]>(employees)
+  const [data, setData] = useState<User[]>([])
+  const [searchListData, setSearchListData] = useState<User[]>([])
   const [search, setSearch] = useState('')
 
+  const { user } = useAuth()
+
   const colors = useTheme()
+
+  const employeesLocalStorageKey = '@kraftheinz:employees'
 
   function handleOpenHistoryModal() {
     setIsModalOpen(true)
@@ -73,6 +33,35 @@ export function History() {
   function handleCLoseHistoryModal() {
     setIsModalOpen(false)
   }
+
+  useEffect(() => {
+    const employeesQuery = query(
+      collection(database, 'users'),
+      where('manager_id', '==', user!.id),
+    )
+
+    const unsubscribe = onSnapshot(employeesQuery, (querySnapshot) => {
+      const employees: User[] = []
+
+      querySnapshot.forEach((doc) => {
+        employees.push({
+          id: doc.id,
+          ...doc.data(),
+        } as User)
+      })
+
+      const employeesLocalData = localStorage.getItem(employeesLocalStorageKey)
+      const formattedLocalData =
+        employeesLocalData && JSON.parse(employeesLocalData)
+
+      setData(employees || formattedLocalData)
+      localStorage.setItem(employeesLocalStorageKey, JSON.stringify(employees))
+    })
+
+    return () => {
+      unsubscribe()
+    }
+  }, [user])
 
   useEffect(() => {
     setSearchListData(data.filter((employee) => employee.name.includes(search)))

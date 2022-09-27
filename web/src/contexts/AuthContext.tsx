@@ -3,11 +3,29 @@ import {
   signInWithEmailAndPassword,
   signOut as signOutFromApp,
 } from 'firebase/auth'
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, onSnapshot } from 'firebase/firestore'
 
 import { auth, database } from '../services/firebase'
 
-interface User {
+interface UserAttributes {
+  open_mind: {
+    amount: number
+  }
+  friendly: {
+    amount: number
+  }
+  organization: {
+    amount: number
+  }
+  dedication: {
+    amount: number
+  }
+  perception: {
+    amount: number
+  }
+}
+
+export interface User {
   id: string
   name: string
   avatar_url: string
@@ -20,6 +38,7 @@ interface User {
   potential: 'A' | 'B' | 'C'
   task_amount?: number
   genre: 'male' | 'female' | 'other'
+  attributes: UserAttributes
 }
 
 interface AuthContextData {
@@ -48,9 +67,6 @@ export function AuthContextProvider(props: AuthContextProviderProps) {
         const formattedLocalData = userLocalData && JSON.parse(userLocalData)
 
         setUser(formattedLocalData)
-
-        /* const { uid } = signedUser
-        const userRef = doc(database, 'users', uid) */
       }
     })
 
@@ -66,23 +82,18 @@ export function AuthContextProvider(props: AuthContextProviderProps) {
       .then(async (account) => {
         const userRef = doc(database, 'users', account.user.uid)
 
-        const response = await getDoc(userRef)
-
-        if (response.exists()) {
-          const data = response.data() as User
+        onSnapshot(userRef, (doc) => {
+          const data = doc.data() as User
 
           const userData = {
             ...data,
             id: account.user.uid,
-            role_insensitive: data.role.toLocaleLowerCase().trim(),
           }
 
           setUser(userData)
 
           localStorage.setItem(userLocalStorageKey, JSON.stringify(userData))
-        } else {
-          setUser(null)
-        }
+        })
       })
       .catch((error) => {
         console.log(error.code)

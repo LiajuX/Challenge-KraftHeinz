@@ -7,7 +7,7 @@ interface TeamMember {
   avatar_url: string
   name: string
   role: string
-  role_title: string
+  role_insensitive: string
 }
 
 interface TeamMemberCardProps {
@@ -16,17 +16,15 @@ interface TeamMemberCardProps {
 }
 
 export function TeamMemberCard({ data, children }: TeamMemberCardProps) {
-  const colors = useTheme()
-
   return (
     <S.TeamMemberCardContainer>
-      <S.UserInfo role={data.role}>
+      <S.UserInfo role={data.role_insensitive}>
         <img src={data.avatar_url} alt={data.name} />
 
         <div>
           <strong>{data.name}</strong>
 
-          <span>{data.role_title}</span>
+          <span>{data.role}</span>
         </div>
       </S.UserInfo>
 

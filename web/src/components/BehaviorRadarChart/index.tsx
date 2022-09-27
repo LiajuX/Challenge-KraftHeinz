@@ -10,6 +10,10 @@ import {
 } from 'chart.js'
 import { Radar } from 'react-chartjs-2'
 
+import { useAuth } from '../../hooks/useAuth'
+
+import { Loading } from '../Loading'
+
 import * as S from './styles'
 
 ChartJS.register(
@@ -35,7 +39,15 @@ const options = {
 }
 
 export function BehaviorRadarChart() {
+  const { user } = useAuth()
+
   const colors = useTheme()
+
+  const openMind = user?.attributes.open_mind.amount
+  const perception = user?.attributes.perception.amount
+  const dedication = user?.attributes.dedication.amount
+  const organization = user?.attributes.organization.amount
+  const friendly = user?.attributes.friendly.amount
 
   const data = {
     labels: [
@@ -47,12 +59,16 @@ export function BehaviorRadarChart() {
     ],
     datasets: [
       {
-        data: [6, 8, 12, 10, 12],
+        data: [openMind, perception, dedication, organization, friendly],
         backgroundColor: colors['green-500-transparency'],
         borderColor: colors['green-500'],
         borderWidth: 3,
       },
     ],
+  }
+
+  if (!user) {
+    return <Loading size={32} />
   }
 
   return (

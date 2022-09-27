@@ -1,4 +1,12 @@
 import { useEffect, useState } from 'react'
+import {
+  collection,
+  doc,
+  onSnapshot,
+  query,
+  updateDoc,
+  where,
+} from 'firebase/firestore'
 import { Plus } from 'phosphor-react'
 import { useTheme } from 'styled-components'
 import { format, differenceInDays, addDays } from 'date-fns'
@@ -6,138 +14,63 @@ import ptBR from 'date-fns/locale/pt-BR'
 
 import { useAuth } from '../../hooks/useAuth'
 
+import { User } from '../../contexts/AuthContext'
+
+import { database } from '../../services/firebase'
+
+import { Loading } from '../../components/Loading'
 import { TeamMemberCard } from '../../components/TeamMemberCard'
 import { SearchBar } from '../../components/SearchBar'
-import { Button } from '../../components/Button'
 import { TeamMemberEvaluationModal } from './components/TeamMemberEvaluationModal'
 import { RoundButton } from '../../components/RoundButton'
 import { TeamMemberManagerEvaluationModal } from './components/TeamMemberManagerEvaluationModal'
 import { MenuOptionButton } from '../../components/RoundButton/MenuOptionButton'
 import { Modal } from '../../components/Modal'
-import { EmployeesListModal } from './components/EmployeesListModal'
+import { CreateNewTeamModal } from './components/CreateNewTeamModal'
+import { AddNewMemberModal } from './components/AddNewMemberModal'
 
 import * as S from './styles'
 
-const teams = [
-  {
-    id: '123456789',
-    name: 'Seção de pesquisa e desenvolvimento',
-    members: [
-      {
-        id: '123456789',
-        name: 'Diego Galvão',
-        avatar_url: 'https://avatars.githubusercontent.com/u/4669899?v=4',
-        role: 'it',
-        role_title: 'TI',
-        potential: 'A',
-        task_amount: 26,
-        last_evaluation: new Date(2022, 6, 18),
-      },
-      {
-        id: '123689',
-        name: 'Carol Medeiros',
-        avatar_url: 'https://github.com/rafaballerini.png',
-        role: 'dev',
-        role_title: 'Desenvolvedora',
-        potential: 'A',
-        task_amount: 32,
-        last_evaluation: new Date(2022, 6, 20),
-      },
-      {
-        id: '1234589',
-        name: 'Vinicius Amâncio',
-        avatar_url: 'https://github.com/luizbatanero.png',
-        role: 'design',
-        role_title: 'Designer',
-        potential: 'C',
-        task_amount: 19,
-        last_evaluation: new Date(2022, 7, 24),
-      },
-    ],
-  },
-  {
-    id: '123456798',
-    name: 'Equipe de desenvolvimento de produtos',
-    members: [
-      {
-        id: '123456789',
-        name: 'Diego Galvão',
-        avatar_url: 'https://avatars.githubusercontent.com/u/4669899?v=4',
-        role: 'it',
-        role_title: 'TI',
-        potential: 'A',
-        task_amount: 26,
-        last_evaluation: new Date(2022, 6, 18),
-      },
-      {
-        id: '1234589',
-        name: 'Vinicius Amâncio',
-        avatar_url: 'https://github.com/luizbatanero.png',
-        role: 'design',
-        role_title: 'Designer',
-        potential: 'C',
-        task_amount: 19,
-        last_evaluation: new Date(2022, 7, 24),
-      },
-    ],
-  },
-]
-
-export interface TeamMember {
+interface TeamProps {
   id: string
-  name: string
-  avatar_url: string
-  role: string
-  role_title: string
-  potential: string
-  task_amount: number
-  last_evaluation: Date
-}
-
-interface TeamsProps {
-  id: string
-  name: string
-  members: TeamMember[]
-}
-
-interface Employee {
-  id: string
-  name: string
-  username: string
-  avatar_url: string
-  role: string
-  role_title: string
-  potential: 'A' | 'B' | 'C'
-  task_amount: number
-  last_evaluation: Date
+  title: string
+  is_subteam: boolean
+  members: User[]
 }
 
 export function Teams() {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isEditingTeams, setIsEditingTeams] = useState(false)
-  const [data, setData] = useState<TeamsProps[]>(teams)
-  const [searchListData, setSearchListData] = useState<TeamsProps[]>(teams)
-  const [currentMember, setCurrentMember] = useState<TeamMember>(
-    {} as TeamMember,
-  )
-  const [isEmployeesListModalOpen, setIsEmployeesListModalOpen] =
-    useState(false)
-  const [selectedEmployee, setSelectedEmployee] = useState({} as Employee)
+  const [data, setData] = useState<TeamProps[]>([])
+  const [searchListData, setSearchListData] = useState<TeamProps[]>([])
   const [search, setSearch] = useState('')
+  const [isEditingTeams, setIsEditingTeams] = useState(false)
+
+  const [isEvaluationModalOpen, setIsEvaluationModalOpen] = useState(false)
+  const [currentMemberEvaluating, setCurrentMemberEvaluating] = useState<User>(
+    {} as User,
+  )
+
+  const [isAddNewMemberModalOpen, setIsAddNewMemberModalOpen] = useState(false)
+  const [teamIdCurrentlyEditing, setTeamIdCurrentlyEditing] = useState('')
+  const [teamMembersCurrentlyEditing, setTeamMembersCurrentlyEditing] =
+    useState<User[]>([])
+
+  const [isCreateNewTeamModalOpen, setIsCreateNewTeamModalOpen] =
+    useState(false)
+  const [isNewTeamASubteam, setIsNewTeamASubteam] = useState(false)
 
   const { user } = useAuth()
 
   const colors = useTheme()
 
-  console.log(selectedEmployee)
+  const teamsLocalStorageKey = '@kraftheinz:teams'
 
-  function handleOpenTeamMemberEvaluationModal(member: TeamMember) {
-    setCurrentMember(member)
-    setIsModalOpen(true)
+  function handleOpenTeamMemberEvaluationModal(member: User) {
+    setCurrentMemberEvaluating(member)
+    setIsEvaluationModalOpen(true)
   }
 
   function handleCloseTeamMemberEvaluationModal() {
-    setIsModalOpen(false)
+    setIsEvaluationModalOpen(false)
   }
 
   function handleEditTeams() {
@@ -148,16 +81,67 @@ export function Teams() {
     setIsEditingTeams(false)
   }
 
-  function handleOpenEmployeesListModal() {
-    setIsEmployeesListModalOpen(true)
+  function handleOpenAddNewMemberModal(teamId: string, teamMembers: User[]) {
+    setIsAddNewMemberModalOpen(true)
+    setTeamIdCurrentlyEditing(teamId)
+    setTeamMembersCurrentlyEditing(teamMembers)
   }
 
-  function handleCloseEmployeesListModal() {
-    setIsEmployeesListModalOpen(false)
+  function handleCloseAddNewMemberModal() {
+    setIsAddNewMemberModalOpen(false)
+  }
+
+  function handleOpenCreateNewTeamModal(isSubteam: boolean) {
+    setIsCreateNewTeamModalOpen(true)
+    setIsNewTeamASubteam(isSubteam)
+  }
+
+  function handleCloseCreateNewTeamModal() {
+    setIsCreateNewTeamModalOpen(false)
+  }
+
+  async function handleDeleteTeamMember(team: TeamProps, teamMemberId: string) {
+    const updatedTeamMembers = team.members.filter(
+      (teamMember) => teamMember.id !== teamMemberId,
+    )
+    const teamMemberRef = doc(database, 'teams', team.id)
+
+    await updateDoc(teamMemberRef, {
+      members: updatedTeamMembers,
+    })
   }
 
   useEffect(() => {
-    setSearchListData(data.filter((team) => team.name.includes(search)))
+    const employeesQuery = query(
+      collection(database, 'teams'),
+      where('managed_by', '==', user!.id),
+    )
+
+    const unsubscribe = onSnapshot(employeesQuery, (querySnapshot) => {
+      const teams: TeamProps[] = []
+
+      querySnapshot.forEach((doc) => {
+        teams.push({
+          id: doc.id,
+          ...doc.data(),
+        } as TeamProps)
+      })
+
+      const teamsLocalData = localStorage.getItem(teamsLocalStorageKey)
+      const formattedLocalData = teamsLocalData && JSON.parse(teamsLocalData)
+
+      setData(teams || formattedLocalData)
+      setSearchListData(teams || formattedLocalData)
+      localStorage.setItem(teamsLocalStorageKey, JSON.stringify(teams))
+    })
+
+    return () => {
+      unsubscribe()
+    }
+  }, [user])
+
+  useEffect(() => {
+    setSearchListData(data.filter((team) => team.title.includes(search)))
   }, [data, search])
 
   return (
@@ -175,24 +159,25 @@ export function Teams() {
             </S.SearchBarContainer>
           </S.ContentWrapperHeader>
 
-          {searchListData.map((team) => (
-            <S.TeamContainer key={team.id}>
-              <h3>
-                {team.name} {isEditingTeams && ' (clique para editar)'}
-              </h3>
+          {searchListData ? (
+            searchListData.map((team) => (
+              <S.TeamContainer key={team.id}>
+                <h3>
+                  {team.title} {isEditingTeams && ' (clique para editar)'}
+                </h3>
 
-              {team.members.map((member) => (
-                <S.TeamMemberCardContainer key={member.id}>
-                  <TeamMemberCard data={member}>
-                    <S.EvaluationTimeContainer>
-                      <span>
-                        Última avaliação em{' '}
-                        {format(member.last_evaluation, 'dd/MM/yyyy', {
+                {team.members?.map((member) => (
+                  <S.TeamMemberCardContainer key={member.id}>
+                    <TeamMemberCard data={member}>
+                      <S.EvaluationTimeContainer>
+                        <span>
+                          Última avaliação em{' '}
+                          {/* format(member.last_evaluation, 'dd/MM/yyyy', {
                           locale: ptBR,
-                        })}
-                      </span>
+                        }) */}
+                        </span>
 
-                      <span>
+                        {/* <span>
                         Tempo até nova avaliação:{' '}
                         {differenceInDays(new Date(), member.last_evaluation) >=
                         31
@@ -201,12 +186,19 @@ export function Teams() {
                               addDays(member.last_evaluation, 31),
                               new Date(),
                             ) + ' dias'}
-                      </span>
-                    </S.EvaluationTimeContainer>
+                      </span> */}
+                      </S.EvaluationTimeContainer>
 
-                    {isEditingTeams ? (
-                      <S.DeleteButton>remover</S.DeleteButton>
-                    ) : differenceInDays(new Date(), member.last_evaluation) >
+                      {isEditingTeams && (
+                        <S.DeleteButton
+                          onClick={() =>
+                            handleDeleteTeamMember(team, member.id)
+                          }
+                        >
+                          remover
+                        </S.DeleteButton>
+                      )}
+                      {/*  : differenceInDays(new Date(), member.last_evaluation) >
                       30 ? (
                       <Button
                         title="Avaliar"
@@ -217,32 +209,39 @@ export function Teams() {
                       />
                     ) : (
                       <S.DisabledButton>avaliar</S.DisabledButton>
-                    )}
+                    )} */}
 
-                    {user?.is_manager ? (
-                      <TeamMemberManagerEvaluationModal
-                        member={currentMember}
-                        isOpen={isModalOpen}
-                        onCloseModal={handleCloseTeamMemberEvaluationModal}
-                      />
-                    ) : (
-                      <TeamMemberEvaluationModal
-                        member={currentMember}
-                        isOpen={isModalOpen}
-                        onCloseModal={handleCloseTeamMemberEvaluationModal}
-                      />
-                    )}
-                  </TeamMemberCard>
-                </S.TeamMemberCardContainer>
-              ))}
+                      {user?.is_manager ? (
+                        <TeamMemberManagerEvaluationModal
+                          member={currentMemberEvaluating}
+                          isOpen={isEvaluationModalOpen}
+                          onCloseModal={handleCloseTeamMemberEvaluationModal}
+                        />
+                      ) : (
+                        <TeamMemberEvaluationModal
+                          member={currentMemberEvaluating}
+                          isOpen={isEvaluationModalOpen}
+                          onCloseModal={handleCloseTeamMemberEvaluationModal}
+                        />
+                      )}
+                    </TeamMemberCard>
+                  </S.TeamMemberCardContainer>
+                ))}
 
-              {isEditingTeams && (
-                <S.AddNewMemberButton onClick={handleOpenEmployeesListModal}>
-                  <Plus size={18} />
-                </S.AddNewMemberButton>
-              )}
-            </S.TeamContainer>
-          ))}
+                {isEditingTeams && (
+                  <S.AddNewMemberButton
+                    onClick={() =>
+                      handleOpenAddNewMemberModal(team.id, team.members)
+                    }
+                  >
+                    <Plus size={18} />
+                  </S.AddNewMemberButton>
+                )}
+              </S.TeamContainer>
+            ))
+          ) : (
+            <Loading size={80} />
+          )}
         </S.ContentWrapper>
       </S.TeamsContainer>
 
@@ -251,14 +250,14 @@ export function Teams() {
           {isEditingTeams ? (
             <MenuOptionButton
               title="Parar de editar"
-              icon="settings"
+              icon="pen"
               color={colors['red-500']}
               onClick={handleStopEditingTeams}
             />
           ) : (
             <MenuOptionButton
               title="Editar equipes"
-              icon="settings"
+              icon="pen"
               color={colors['green-500']}
               onClick={handleEditTeams}
             />
@@ -268,24 +267,36 @@ export function Teams() {
             title="Nova sub-equipe"
             icon="group"
             color={colors['blue-500']}
+            onClick={() => handleOpenCreateNewTeamModal(true)}
           />
 
           <MenuOptionButton
             title="Nova equipe"
             icon="group"
             color={colors['blue-600']}
+            onClick={() => handleOpenCreateNewTeamModal(false)}
           />
         </RoundButton>
       )}
 
       <Modal
-        isOpen={isEmployeesListModalOpen}
-        onCloseModal={handleCloseEmployeesListModal}
+        isOpen={isCreateNewTeamModalOpen}
+        onCloseModal={handleCloseCreateNewTeamModal}
       >
-        <EmployeesListModal
-          onCloseModal={handleCloseEmployeesListModal}
-          selectedEmployee={selectedEmployee}
-          setSelectedEmployee={setSelectedEmployee}
+        <CreateNewTeamModal
+          onCloseModal={handleCloseCreateNewTeamModal}
+          isSubteam={isNewTeamASubteam}
+        />
+      </Modal>
+
+      <Modal
+        isOpen={isAddNewMemberModalOpen}
+        onCloseModal={handleCloseAddNewMemberModal}
+      >
+        <AddNewMemberModal
+          onCloseModal={handleCloseAddNewMemberModal}
+          teamId={teamIdCurrentlyEditing}
+          currentMembers={teamMembersCurrentlyEditing}
         />
       </Modal>
     </>
