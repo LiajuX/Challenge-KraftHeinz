@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-export const FileButtonContainer = styled.div``
+export const FileInputContainer = styled.div``
 
 export const FileInput = styled.div`
   position: relative;

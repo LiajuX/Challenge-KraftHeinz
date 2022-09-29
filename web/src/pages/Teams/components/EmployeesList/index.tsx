@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { collection, onSnapshot, query, where } from 'firebase/firestore'
+import { IoCheckmarkCircleOutline } from 'react-icons/io5'
 
 import { useAuth } from '../../../../hooks/useAuth'
 
@@ -97,7 +98,13 @@ export function EmployeesList({
             onClick={() => handleSelectEmployee(employee)}
           >
             <S.UserInfo>
-              <img src={employee.avatar_url} alt={employee.name} />
+              <S.ImageContainer>
+                {!!selectedMembers.find(
+                  (member) => member.id === employee.id,
+                ) && <IoCheckmarkCircleOutline size={42} />}
+
+                <img src={employee.avatar_url} alt={employee.name} />
+              </S.ImageContainer>
 
               <strong>{employee.name}</strong>
             </S.UserInfo>

@@ -1,4 +1,4 @@
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 import ReactModal from 'react-modal'
 
 export const ModalContainer = styled(ReactModal)``

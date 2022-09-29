@@ -38,20 +38,40 @@ export const TeamMemberButton = styled.button<TeamMemberButtonProp>`
   ${({ isActive, theme }) =>
     isActive
       ? css`
-          background: ${theme['grey-100']};
-          border: 2px solid ${theme.white};
+          opacity: 60%;
         `
       : css`
           &:hover {
             border: 2px solid ${({ theme }) => theme['grey-100']};
           }
         `}
+`
+
+export const ImageContainer = styled.div`
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 2.875rem;
+  height: 2.875rem;
+
+  border-radius: 50%;
 
   img {
     width: 2.875rem;
     height: 2.875rem;
 
     border-radius: 50%;
+  }
+
+  svg {
+    position: absolute;
+
+    color: ${({ theme }) => theme.white};
+
+    opacity: 50%;
   }
 `
 

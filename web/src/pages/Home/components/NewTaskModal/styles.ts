@@ -171,11 +171,22 @@ export const SubtaskButton = styled.button`
   }
 
   span {
-    margin-bottom: 1.0625rem;
+    border: 0;
+
+    color: ${({ theme }) => theme['green-500']};
+
+    font-size: 1rem;
+    font-weight: bold;
   }
 
-  textarea {
-    margin: 0;
+  h3 {
+    margin-top: 1.0625rem;
+    border: 0;
+
+    color: ${({ theme }) => theme['blue-800']};
+
+    font-weight: bold;
+    font-size: 1.25rem;
   }
 `
 
@@ -238,10 +249,9 @@ export const AvatarContainer = styled.button<TeamMembersProps>`
   }
 `
 
-export const ImagesContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
+export const ButtonsContainer = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
   gap: 0.75rem;
 
   margin: 1.0625rem 0 2.125rem;

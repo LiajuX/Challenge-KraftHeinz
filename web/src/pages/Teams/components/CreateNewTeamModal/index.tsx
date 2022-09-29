@@ -1,6 +1,9 @@
 import { useState } from 'react'
+import { doc, addDoc, collection } from 'firebase/firestore'
 
 import { User } from '../../../../contexts/AuthContext'
+
+import { useAuth } from '../../../../hooks/useAuth'
 
 import { database } from '../../../../services/firebase'
 
@@ -21,11 +24,28 @@ export function CreateNewTeamModal({
   const [title, setTitle] = useState('')
   const [selectedMembers, setSelectedMembers] = useState<User[]>([])
 
+  const { user } = useAuth()
+
   const areThereSelectedMembers = selectedMembers.length > 0
   const isTitleEmpty = title.trim().length === 0
 
-  function handleStopAddingNewMembers() {
-    onCloseModal()
+  async function handlCreateNewTeam() {
+    const teamRef = collection(database, 'teams')
+
+    await addDoc(teamRef, {
+      title,
+      is_subteam: isSubteam,
+      managed_by: user!.id,
+      members: [user, ...selectedMembers],
+    })
+      .then(() => {
+        onCloseModal()
+      })
+      .catch(() => {
+        window.alert(
+          `Não foi possível criar nova ${isSubteam ? 'sub-equipe' : 'equipe'}`,
+        )
+      })
   }
 
   return (
@@ -50,7 +70,7 @@ export function CreateNewTeamModal({
           buttonStyle="secondary"
           title="concluir"
           disabled={!(areThereSelectedMembers && !isTitleEmpty)}
-          onClick={handleStopAddingNewMembers}
+          onClick={handlCreateNewTeam}
         />
       </S.ButtonContainer>
     </S.CreateNewTeamModalContainer>

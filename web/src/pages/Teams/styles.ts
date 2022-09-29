@@ -38,6 +38,8 @@ export const TeamContainer = styled.div`
   }
 
   h3 {
+    max-width: 60%;
+
     margin-bottom: 2.375rem;
 
     color: ${({ theme }) => theme['grey-300']};

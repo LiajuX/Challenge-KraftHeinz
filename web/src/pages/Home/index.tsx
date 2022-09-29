@@ -48,19 +48,18 @@ export function Home() {
       ? query(
           collection(database, 'tasks'),
           where('managed_by', '==', user!.id),
-          orderBy('finished_date', 'desc'),
         )
       : query(
           collection(database, 'tasks'),
           where('assigned_to', '==', user!.id),
-          orderBy('due_date', 'asc'),
         )
 
     const unsubscribe = onSnapshot(tasksQuery, (querySnapshot) => {
       const storedTasks: TaskType[] = []
-      const subtasks: Subtask[] = []
 
       querySnapshot.forEach((doc) => {
+        const subtasks: Subtask[] = []
+
         if (doc.data().subtasks) {
           doc.data().subtasks.forEach((subtask: any) => {
             const subtaskDataFormatted = {
@@ -79,14 +78,30 @@ export function Home() {
           subtasks: doc.data().subtasks && subtasks,
         } as TaskType
 
-        storedTasks.push(task)
+        if (
+          (user!.is_manager && !!task.finished_date) ||
+          (!user!.is_manager && !task.finished_date)
+        ) {
+          storedTasks.push(task)
+        }
       })
+
+      const storedTasksSorted = user!.is_manager
+        ? storedTasks.sort(
+            (taskA, taskB) => Number(taskB.due_date) - Number(taskA.due_date),
+          )
+        : storedTasks.sort(
+            (taskA, taskB) => Number(taskA.due_date) - Number(taskB.due_date),
+          )
 
       const tasksLocalData = localStorage.getItem(tasksLocalStorageKey)
       const formattedLocalData = tasksLocalData && JSON.parse(tasksLocalData)
 
-      setTasks(storedTasks || formattedLocalData)
-      localStorage.setItem(tasksLocalStorageKey, JSON.stringify(storedTasks))
+      setTasks(storedTasksSorted || formattedLocalData)
+      localStorage.setItem(
+        tasksLocalStorageKey,
+        JSON.stringify(storedTasksSorted),
+      )
 
       return () => {
         unsubscribe()

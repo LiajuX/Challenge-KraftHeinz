@@ -5,7 +5,7 @@ import { Alarm } from 'phosphor-react'
 
 import { useAuth } from '../../../hooks/useAuth'
 
-import { FileButton } from '../../FileButton'
+import { FileInput } from '../../FileInput'
 import { StaffContent } from './StaffContent'
 import { ManagerContent } from './ManagerContent'
 import { Button } from '../../Button'
@@ -129,7 +129,7 @@ export function TaskEvaluationModal({
           </S.TaskInfo>
 
           <S.FilesContainer>
-            {data.files ? <FileButton /> : <FileButton />}
+            {data.files ? <FileInput /> : <FileInput />}
           </S.FilesContainer>
 
           <hr />

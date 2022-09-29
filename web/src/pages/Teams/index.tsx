@@ -36,6 +36,7 @@ interface TeamProps {
   title: string
   is_subteam: boolean
   members: User[]
+  managed_by: string
 }
 
 export function Teams() {
@@ -114,17 +115,23 @@ export function Teams() {
   useEffect(() => {
     const employeesQuery = query(
       collection(database, 'teams'),
-      where('managed_by', '==', user!.id),
+      where('managed_by', '==', user!.is_manager ? user!.id : user!.manager_id),
     )
 
     const unsubscribe = onSnapshot(employeesQuery, (querySnapshot) => {
       const teams: TeamProps[] = []
 
       querySnapshot.forEach((doc) => {
-        teams.push({
-          id: doc.id,
-          ...doc.data(),
-        } as TeamProps)
+        const isCurrentUserInThisTeam = !!doc
+          .data()
+          .members.find((member: User) => member.id === user!.id)
+
+        if (isCurrentUserInThisTeam) {
+          teams.push({
+            id: doc.id,
+            ...doc.data(),
+          } as TeamProps)
+        }
       })
 
       const teamsLocalData = localStorage.getItem(teamsLocalStorageKey)
@@ -166,18 +173,20 @@ export function Teams() {
                   {team.title} {isEditingTeams && ' (clique para editar)'}
                 </h3>
 
-                {team.members?.map((member) => (
-                  <S.TeamMemberCardContainer key={member.id}>
-                    <TeamMemberCard data={member}>
-                      <S.EvaluationTimeContainer>
-                        <span>
-                          Última avaliação em{' '}
-                          {/* format(member.last_evaluation, 'dd/MM/yyyy', {
+                {team.members
+                  ?.filter((member) => member.id !== user?.id)
+                  .map((member) => (
+                    <S.TeamMemberCardContainer key={member.id}>
+                      <TeamMemberCard data={member}>
+                        <S.EvaluationTimeContainer>
+                          <span>
+                            Última avaliação em{' '}
+                            {/* format(member.last_evaluation, 'dd/MM/yyyy', {
                           locale: ptBR,
                         }) */}
-                        </span>
+                          </span>
 
-                        {/* <span>
+                          {/* <span>
                         Tempo até nova avaliação:{' '}
                         {differenceInDays(new Date(), member.last_evaluation) >=
                         31
@@ -187,18 +196,18 @@ export function Teams() {
                               new Date(),
                             ) + ' dias'}
                       </span> */}
-                      </S.EvaluationTimeContainer>
+                        </S.EvaluationTimeContainer>
 
-                      {isEditingTeams && (
-                        <S.DeleteButton
-                          onClick={() =>
-                            handleDeleteTeamMember(team, member.id)
-                          }
-                        >
-                          remover
-                        </S.DeleteButton>
-                      )}
-                      {/*  : differenceInDays(new Date(), member.last_evaluation) >
+                        {isEditingTeams && (
+                          <S.DeleteButton
+                            onClick={() =>
+                              handleDeleteTeamMember(team, member.id)
+                            }
+                          >
+                            remover
+                          </S.DeleteButton>
+                        )}
+                        {/*  : differenceInDays(new Date(), member.last_evaluation) >
                       30 ? (
                       <Button
                         title="Avaliar"
@@ -211,22 +220,22 @@ export function Teams() {
                       <S.DisabledButton>avaliar</S.DisabledButton>
                     )} */}
 
-                      {user?.is_manager ? (
-                        <TeamMemberManagerEvaluationModal
-                          member={currentMemberEvaluating}
-                          isOpen={isEvaluationModalOpen}
-                          onCloseModal={handleCloseTeamMemberEvaluationModal}
-                        />
-                      ) : (
-                        <TeamMemberEvaluationModal
-                          member={currentMemberEvaluating}
-                          isOpen={isEvaluationModalOpen}
-                          onCloseModal={handleCloseTeamMemberEvaluationModal}
-                        />
-                      )}
-                    </TeamMemberCard>
-                  </S.TeamMemberCardContainer>
-                ))}
+                        {user?.is_manager ? (
+                          <TeamMemberManagerEvaluationModal
+                            member={currentMemberEvaluating}
+                            isOpen={isEvaluationModalOpen}
+                            onCloseModal={handleCloseTeamMemberEvaluationModal}
+                          />
+                        ) : (
+                          <TeamMemberEvaluationModal
+                            member={currentMemberEvaluating}
+                            isOpen={isEvaluationModalOpen}
+                            onCloseModal={handleCloseTeamMemberEvaluationModal}
+                          />
+                        )}
+                      </TeamMemberCard>
+                    </S.TeamMemberCardContainer>
+                  ))}
 
                 {isEditingTeams && (
                   <S.AddNewMemberButton

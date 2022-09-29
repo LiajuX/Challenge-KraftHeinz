@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTheme } from 'styled-components'
-import { format, isToday, isThisWeek } from 'date-fns'
+import { format, isToday, isThisWeek, isBefore } from 'date-fns'
 import ptBR from 'date-fns/locale/pt-BR'
 import { Alarm } from 'phosphor-react'
 
@@ -59,7 +59,7 @@ export function Task({ data }: Props) {
 
   const dueDateColor = user?.is_manager
     ? colors['grey-300']
-    : isToday(data.due_date)
+    : isToday(data.due_date) || isBefore(data.due_date, new Date())
     ? colors['red-500']
     : isThisWeek(data.due_date) && !isToday(data.due_date)
     ? colors['orange-500']
