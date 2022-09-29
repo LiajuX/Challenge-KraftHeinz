@@ -43,6 +43,13 @@ export const TitleInput = styled.input`
   font-weight: bold;
   font-size: 1.25rem;
 
+  &:focus {
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid ${({ theme }) => theme['blue-700']};
+
+    box-shadow: none;
+  }
+
   ::placeholder {
     color: ${({ theme }) => theme['blue-800']};
   }

@@ -6,6 +6,7 @@ import { database } from '../../services/firebase'
 import { useAuth } from '../../hooks/useAuth'
 
 import { BehaviorRadarChart } from '../../components/BehaviorRadarChart'
+import { Textarea } from '../../components/Form/Textarea'
 import { Button } from '../../components/Button'
 import { PerformanceCard } from '../../components/PerformanceCard'
 import { RatingStars } from './components/RatingStars'
@@ -54,7 +55,7 @@ export function Dashboard() {
               <S.Quote isFocused={isEditingUserExpectations}>
                 <span>“</span>
 
-                <textarea
+                <Textarea
                   ref={userExpectationsInputRef}
                   value={userExpectations}
                   onChange={(e) => setUserExpectations(e.target.value)}

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 import { Slider } from '../../../Form/Slider'
+import { Textarea } from '../../../Form/Textarea'
 import { Multiselect } from '../../../Multiselect'
 import { Button } from '../../../Button'
 
@@ -51,7 +52,7 @@ export function StaffContent({ onCloseModal }: StaffContentProps) {
       <div>
         <label htmlFor="manager-comment">Se quiser, deixe um comentário</label>
 
-        <textarea
+        <Textarea
           id="manager-comment"
           value={managerEvaluationComment}
           onChange={(e) => setManagerEvaluationComment(e.target.value)}
@@ -73,7 +74,7 @@ export function StaffContent({ onCloseModal }: StaffContentProps) {
           Se quiser, deixe um comentário
         </label>
 
-        <textarea
+        <Textarea
           id="workstation-comment"
           value={workstationEvaluationComment}
           onChange={(e) => setWorkstationEvaluationComment(e.target.value)}

@@ -13,12 +13,13 @@ import { Button } from '../../Button'
 import * as S from './styles'
 
 export interface TaskProps {
+  id?: string
   title: string
   description: string
   parent_task_title?: string
   due_date: Date | null
   files?: []
-  is_subtask?: boolean
+  is_subtask: boolean
   subtasks?: TaskProps[]
 }
 

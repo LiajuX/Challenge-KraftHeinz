@@ -1,5 +1,7 @@
 import styled, { css } from 'styled-components'
 
+import { Textarea as TextareaComponent } from '../../../../components/Form/Textarea'
+
 export const NewTaskContainer = styled.div`
   padding: 1.75rem 4.875rem 2.375rem;
 
@@ -22,39 +24,6 @@ export const NewTaskContainer = styled.div`
 
     font-size: 0.75rem;
     font-weight: bold;
-  }
-
-  textarea {
-    width: 100%;
-    min-height: 6.125rem;
-
-    margin: 1.0625rem 0 2.125rem;
-    border: 0;
-
-    font-size: 1rem;
-
-    resize: none;
-
-    ::placeholder {
-      color: ${({ theme }) => theme.black};
-    }
-
-    ::-webkit-scrollbar {
-      width: 5px;
-    }
-
-    ::-webkit-scrollbar-track {
-      margin: 0.5rem;
-      border-radius: 2.5rem;
-
-      background: ${(props) => props.theme['grey-100']};
-    }
-
-    ::-webkit-scrollbar-thumb {
-      border-radius: 2.5rem;
-
-      background: ${(props) => props.theme['grey-200']};
-    }
   }
 `
 
@@ -106,16 +75,27 @@ export const TitleInput = styled.input`
   font-weight: bold;
   font-size: 1.25rem;
 
+  &:focus {
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid ${({ theme }) => theme['blue-700']};
+
+    box-shadow: none;
+  }
+
   ::placeholder {
     color: ${({ theme }) => theme['blue-800']};
   }
+`
+
+export const Textarea = styled(TextareaComponent)`
+  margin: 1rem 0;
 `
 
 export const FilesContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
 
-  margin: 1.0625rem 0 2.125rem;
+  margin: 1rem 0 2.125rem;
 `
 
 interface CheckboxProps {
@@ -128,7 +108,7 @@ export const CheckboxContainer = styled.div<CheckboxProps>`
   justify-content: flex-start;
   gap: 0.5rem;
 
-  margin: 1.0625rem 0 2.125rem;
+  margin: 1rem 0 2.125rem;
 
   cursor: pointer;
 
@@ -153,40 +133,48 @@ export const CheckboxContainer = styled.div<CheckboxProps>`
   }
 `
 
-export const SubtaskButton = styled.button`
+export const SubtaskContainer = styled.div`
   width: 100%;
 
-  margin-bottom: 1rem;
-  padding: 0.75rem 2rem 2rem 0.875rem;
+  margin-bottom: 2.125rem;
+  padding: 1.5rem;
+  border: 2px solid ${({ theme }) => theme['grey-100']};
   border-radius: 9px;
 
   background: ${({ theme }) => theme.white};
 
-  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
-
   text-align: left;
+
+  header {
+    div {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+
+      span {
+        display: inline-block;
+        margin: 0 0.5rem;
+
+        color: ${({ theme }) => theme['grey-200']};
+
+        font-size: 1.1875rem;
+        font-weight: bold;
+      }
+    }
+
+    button {
+      height: 18px;
+
+      background: transparent;
+
+      svg {
+        color: ${({ theme }) => theme['grey-200']};
+      }
+    }
+  }
 
   &:first-child {
     margin-top: 1rem;
-  }
-
-  span {
-    border: 0;
-
-    color: ${({ theme }) => theme['green-500']};
-
-    font-size: 1rem;
-    font-weight: bold;
-  }
-
-  h3 {
-    margin-top: 1.0625rem;
-    border: 0;
-
-    color: ${({ theme }) => theme['blue-800']};
-
-    font-weight: bold;
-    font-size: 1.25rem;
   }
 `
 
@@ -254,7 +242,7 @@ export const ButtonsContainer = styled.div`
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
   gap: 0.75rem;
 
-  margin: 1.0625rem 0 2.125rem;
+  margin: 1rem 0 2.125rem;
 `
 
 const ICON_COLORS = {

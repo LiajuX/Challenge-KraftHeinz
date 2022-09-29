@@ -32,41 +32,6 @@ export const TeamMemberEvaluationModalContainer = styled.div`
 
     font-size: 0.9375rem;
   }
-
-  textarea {
-    width: 100%;
-    min-height: 6.125rem;
-
-    margin: 2rem 0;
-    padding: 0.3rem 0.5rem;
-    border: 2px solid ${({ theme }) => theme['grey-100']};
-    border-radius: 9px;
-
-    font-size: 0.75rem;
-
-    resize: none;
-
-    &::placeholder {
-      color: ${({ theme }) => theme['grey-200']};
-    }
-
-    ::-webkit-scrollbar {
-      width: 5px;
-    }
-
-    ::-webkit-scrollbar-track {
-      margin: 0.5rem;
-      border-radius: 2.5rem;
-
-      background: ${(props) => props.theme['grey-100']};
-    }
-
-    ::-webkit-scrollbar-thumb {
-      border-radius: 2.5rem;
-
-      background: ${(props) => props.theme['grey-200']};
-    }
-  }
 `
 
 export const SliderContainer = styled.div`

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import {
   addDoc,
   collection,
@@ -7,13 +7,16 @@ import {
   Timestamp,
   where,
 } from 'firebase/firestore'
+import { v4 as uuidv4 } from 'uuid'
 import { addDays, format } from 'date-fns'
 import ptBR from 'date-fns/locale/pt-BR'
-import { Alarm, Plus } from 'phosphor-react'
+import { Alarm, Plus, X } from 'phosphor-react'
 import { IoCheckmarkCircleOutline } from 'react-icons/io5'
 
 import { useAuth } from '../../../../hooks/useAuth'
 import { User } from '../../../../contexts/AuthContext'
+
+import { database } from '../../../../services/firebase'
 
 import { TaskProps } from '../../../../components/Task/TaskEvaluationModal'
 import { Button } from '../../../../components/Button'
@@ -24,7 +27,6 @@ import cameraImg from '../../../../assets/camera.svg'
 import videoImg from '../../../../assets/video.svg'
 
 import * as S from './styles'
-import { database } from '../../../../services/firebase'
 
 interface TaskDetailsModalProps {
   onCloseModal: () => void
@@ -49,8 +51,6 @@ const icons: Icon[] = [
     path: videoImg,
   },
 ]
-
-const username = 'jakelinycarvalho'
 
 export function NewTaskModal({ onCloseModal }: TaskDetailsModalProps) {
   const [title, setTitle] = useState('')
@@ -77,7 +77,17 @@ export function NewTaskModal({ onCloseModal }: TaskDetailsModalProps) {
     : !(!!title && !!description && !!taskIcon)
 
   function handleAddNewSubtask() {
-    setSubtasks((oldValue) => [...oldValue, {} as TaskProps])
+    setSubtasks((oldValue) => [
+      ...oldValue,
+      {
+        id: uuidv4(),
+        title: '',
+        description: '',
+        due_date: dueDate,
+        assigned_to: user?.id,
+        is_subtask: true,
+      } as TaskProps,
+    ])
   }
 
   function handleEmployeeSelection(employeeId: string) {
@@ -94,6 +104,30 @@ export function NewTaskModal({ onCloseModal }: TaskDetailsModalProps) {
     } else {
       setTaskIcon(icon)
     }
+  }
+
+  function handleSubtaskTitleChange(
+    event: ChangeEvent<HTMLInputElement>,
+    currentSubtask: TaskProps,
+  ) {
+    const subtaskUpdated = {
+      ...currentSubtask,
+      title: event.target.value,
+    }
+
+    console.log(subtaskUpdated)
+  }
+
+  function handleSubtaskDescriptionChange(
+    event: ChangeEvent<HTMLTextAreaElement>,
+    subtask: TaskProps,
+  ) {
+    const subtaskUpdated = {
+      ...subtask,
+      description: event.target.value,
+    }
+
+    console.log(subtaskUpdated)
   }
 
   async function handleCreateTask() {
@@ -182,7 +216,7 @@ export function NewTaskModal({ onCloseModal }: TaskDetailsModalProps) {
 
       <span>Descrição</span>
 
-      <textarea
+      <S.Textarea
         value={description}
         placeholder="Cliquei aqui para adicionar descrição"
         onChange={(e) => setDescription(e.target.value)}
@@ -209,29 +243,35 @@ export function NewTaskModal({ onCloseModal }: TaskDetailsModalProps) {
           {hasSubtasks &&
             subtasks.length > 0 &&
             subtasks.map((subtask, index) => (
-              <S.SubtaskButton
-                key={`${subtask.title}-${subtask.due_date}`}
-                onClick={() => {}}
-              >
+              <S.SubtaskContainer key={subtask.id}>
                 <header>
-                  <strong>Subtarefa {index + 1}</strong>
-                  <S.DueDate>
-                    <Alarm weight="bold" size={20} />
+                  <div>
+                    <strong>Nova entrega</strong>
+                    <span> / </span>
+                    <strong>Nova subtarefa {index + 1}</strong>
+                  </div>
 
-                    {subtask.due_date ? (
-                      <time>
-                        {format(subtask.due_date, 'dd/MM/yyyy', {
-                          locale: ptBR,
-                        })}
-                      </time>
-                    ) : (
-                      <span>Selecione um prazo</span>
-                    )}
-                  </S.DueDate>
+                  <button>
+                    <X weight="bold" size={18} onClick={() => {}} />
+                  </button>
                 </header>
 
-                <h3>{subtask.title || 'Clique para adicionar um nome'}</h3>
-              </S.SubtaskButton>
+                <S.TitleInput
+                  defaultValue={subtask.title}
+                  placeholder="Clique para adicionar um título"
+                  onChange={(event) => handleSubtaskTitleChange(event, subtask)}
+                />
+
+                <span>Descrição</span>
+
+                <S.Textarea
+                  defaultValue={subtask.description}
+                  placeholder="Cliquei aqui para adicionar descrição"
+                  onChange={(event) =>
+                    handleSubtaskDescriptionChange(event, subtask)
+                  }
+                />
+              </S.SubtaskContainer>
             ))}
 
           {hasSubtasks && (

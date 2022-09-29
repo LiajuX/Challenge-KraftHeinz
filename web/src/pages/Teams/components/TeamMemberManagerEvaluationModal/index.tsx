@@ -1,9 +1,10 @@
 import { useState } from 'react'
 
-import { TeamMember } from '../..'
+import { User } from '../../../../contexts/AuthContext'
 
 import { Button } from '../../../../components/Button'
 import { Slider } from '../../../../components/Form/Slider'
+import { Textarea } from '../../../../components/Form/Textarea'
 import { Modal } from '../../../../components/Modal'
 import { Multiselect } from '../../../../components/Multiselect'
 
@@ -12,7 +13,7 @@ import * as S from './styles'
 interface TeamMemberManagerEvaluationModalProps {
   isOpen: boolean
   onCloseModal: () => void
-  member: TeamMember
+  member: User
 }
 
 export function TeamMemberManagerEvaluationModal({
@@ -113,7 +114,7 @@ export function TeamMemberManagerEvaluationModal({
         <div>
           <label htmlFor="comment">Se quiser, deixe um comentário </label>
 
-          <textarea
+          <Textarea
             id="comment"
             value={comment}
             onChange={(e) => setComment(e.target.value)}

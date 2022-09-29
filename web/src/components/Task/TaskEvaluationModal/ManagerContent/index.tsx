@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Button } from '../../../Button'
 import { Slider } from '../../../Form/Slider'
+import { Textarea } from '../../../Form/Textarea'
 import { Multiselect } from '../../../Multiselect'
 
 import * as S from './styles'
@@ -62,7 +63,7 @@ export function ManagerContent({ onCloseModal }: ManagerContentProps) {
           efetuar a avaliação de desempenho
         </label>
 
-        <textarea
+        <Textarea
           id="comment"
           value={comment}
           onChange={(e) => setComment(e.target.value)}
