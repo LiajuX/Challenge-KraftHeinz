@@ -1,19 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useTheme } from 'styled-components'
-import {
-  collection,
-  onSnapshot,
-  orderBy,
-  query,
-  where,
-} from 'firebase/firestore'
+import { collection, onSnapshot, query, where } from 'firebase/firestore'
+import { getDownloadURL, listAll, ref } from 'firebase/storage'
 
-import { database } from '../../services/firebase'
+import { database, storage } from '../../services/firebase'
 
 import { useAuth } from '../../hooks/useAuth'
 
 import { Loading } from '../../components/Loading'
-import { Subtask, Task, TaskType } from '../../components/Task'
+import { Task, TaskType } from '../../components/Task'
 import { PerformanceCard } from '../../components/PerformanceCard'
 import { BehaviorRadarChart } from '../../components/BehaviorRadarChart'
 import { RoundButton } from '../../components/RoundButton'
@@ -22,6 +17,7 @@ import { Modal } from '../../components/Modal'
 import { NewTaskModal } from './components/NewTaskModal'
 
 import * as S from './styles'
+import { FileType } from '../../components/File'
 
 export function Home() {
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false)
@@ -58,7 +54,8 @@ export function Home() {
       const storedTasks: TaskType[] = []
 
       querySnapshot.forEach((doc) => {
-        const subtasks: Subtask[] = []
+        const subtasks: TaskType[] = []
+        const files: FileType[] = []
 
         if (doc.data().subtasks) {
           doc.data().subtasks.forEach((subtask: any) => {
@@ -71,11 +68,36 @@ export function Home() {
           })
         }
 
+        const filesRef = ref(
+          storage,
+          `/attachments/${
+            user?.is_manager ? user.id : user?.manager_id
+          }/tasks/${doc.id}/`,
+        )
+
+        listAll(filesRef)
+          .then((res) => {
+            res.items.forEach((itemRef) => {
+              getDownloadURL(itemRef).then((url) => {
+                const file = {
+                  name: itemRef.name,
+                  url,
+                }
+
+                files.push(file)
+              })
+            })
+          })
+          .catch((error) => {
+            console.log(error.message)
+          })
+
         const task = {
           ...doc.data(),
           id: doc.id,
           due_date: doc.data().due_date.toDate(),
           subtasks: doc.data().subtasks && subtasks,
+          files,
         } as TaskType
 
         if (

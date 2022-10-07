@@ -3,8 +3,7 @@ import { doc, updateDoc } from 'firebase/firestore'
 
 import { database } from '../../../../services/firebase'
 
-import { User } from '../../../../contexts/AuthContext'
-
+import { TeamMember } from '../..'
 import { EmployeesList } from '../EmployeesList'
 import { Button } from '../../../../components/Button'
 
@@ -13,7 +12,7 @@ import * as S from './styles'
 interface AddNewMemberModalProps {
   onCloseModal: () => void
   teamId: string
-  currentMembers: User[]
+  currentMembers: TeamMember[]
 }
 
 export function AddNewMemberModal({
@@ -21,7 +20,7 @@ export function AddNewMemberModal({
   currentMembers,
   onCloseModal,
 }: AddNewMemberModalProps) {
-  const [selectedMembers, setSelectedMembers] = useState<User[]>([])
+  const [selectedMembers, setSelectedMembers] = useState<TeamMember[]>([])
 
   async function handleAddNewMembers() {
     const teamRef = doc(database, 'teams', teamId)

@@ -13,7 +13,7 @@ export const TextareaContainer = styled.textarea`
   resize: none;
 
   &:focus {
-    border-color: ${({ theme }) => theme['blue-500']};
+    border-color: ${({ theme }) => theme['blue-700']};
 
     box-shadow: none;
   }

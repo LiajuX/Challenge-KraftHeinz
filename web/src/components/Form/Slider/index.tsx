@@ -52,40 +52,40 @@ export function Slider({ currentValue, setCurrentValue }: SliderProps) {
   return (
     <>
       <S.LabelsContainer>
-        <label htmlFor="slider" onClick={() => setCurrentValue(0)}>
+        <button onClick={() => setCurrentValue(0)}>
           <SatisfactionEmoji
             type="terrible"
             color={currentValue === 0 ? currentStatusColor : ''}
           />
-        </label>
+        </button>
 
-        <label htmlFor="slider" onClick={() => setCurrentValue(1)}>
+        <button onClick={() => setCurrentValue(1)}>
           <SatisfactionEmoji
             type="bad"
             color={currentValue === 1 ? currentStatusColor : ''}
           />
-        </label>
+        </button>
 
-        <label htmlFor="slider" onClick={() => setCurrentValue(2)}>
+        <button onClick={() => setCurrentValue(2)}>
           <SatisfactionEmoji
             type="regular"
             color={currentValue === 2 ? currentStatusColor : ''}
           />
-        </label>
+        </button>
 
-        <label htmlFor="slider" onClick={() => setCurrentValue(3)}>
+        <button onClick={() => setCurrentValue(3)}>
           <SatisfactionEmoji
             type="good"
             color={currentValue === 3 ? currentStatusColor : ''}
           />
-        </label>
+        </button>
 
-        <label htmlFor="slider" onClick={() => setCurrentValue(4)}>
+        <button onClick={() => setCurrentValue(4)}>
           <SatisfactionEmoji
             type="great"
             color={currentValue === 4 ? currentStatusColor : ''}
           />
-        </label>
+        </button>
       </S.LabelsContainer>
 
       <S.SliderContainer>

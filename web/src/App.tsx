@@ -8,6 +8,8 @@ import { Routes } from './routes'
 import { GlobalStyle } from './styles/global'
 import { defaultTheme } from './styles/themes/default'
 
+import 'react-datepicker/dist/react-datepicker.css'
+
 export function App() {
   return (
     <ThemeProvider theme={defaultTheme}>

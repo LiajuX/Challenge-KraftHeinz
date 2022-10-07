@@ -1,5 +1,4 @@
 import { ReactNode } from 'react'
-import { useTheme } from 'styled-components'
 
 import * as S from './styles'
 

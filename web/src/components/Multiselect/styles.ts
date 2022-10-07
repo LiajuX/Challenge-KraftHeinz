@@ -7,3 +7,11 @@ export const MultiselectContainer = styled.div`
 
   margin: 2rem 0;
 `
+
+export const SelectButtonContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.3125rem;
+
+  width: 100%;
+`

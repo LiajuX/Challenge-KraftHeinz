@@ -14,8 +14,6 @@ import ptBR from 'date-fns/locale/pt-BR'
 
 import { useAuth } from '../../hooks/useAuth'
 
-import { User } from '../../contexts/AuthContext'
-
 import { database } from '../../services/firebase'
 
 import { Loading } from '../../components/Loading'
@@ -31,11 +29,19 @@ import { AddNewMemberModal } from './components/AddNewMemberModal'
 
 import * as S from './styles'
 
-interface TeamProps {
+export interface TeamMember {
+  id: string
+  name: string
+  avatar_url: string
+  role: string
+  role_insensitive: string
+}
+
+export interface TeamProps {
   id: string
   title: string
   is_subteam: boolean
-  members: User[]
+  members: TeamMember[]
   managed_by: string
 }
 
@@ -46,14 +52,13 @@ export function Teams() {
   const [isEditingTeams, setIsEditingTeams] = useState(false)
 
   const [isEvaluationModalOpen, setIsEvaluationModalOpen] = useState(false)
-  const [currentMemberEvaluating, setCurrentMemberEvaluating] = useState<User>(
-    {} as User,
-  )
+  const [currentMemberEvaluating, setCurrentMemberEvaluating] =
+    useState<TeamMember>({} as TeamMember)
 
   const [isAddNewMemberModalOpen, setIsAddNewMemberModalOpen] = useState(false)
   const [teamIdCurrentlyEditing, setTeamIdCurrentlyEditing] = useState('')
   const [teamMembersCurrentlyEditing, setTeamMembersCurrentlyEditing] =
-    useState<User[]>([])
+    useState<TeamMember[]>([])
 
   const [isCreateNewTeamModalOpen, setIsCreateNewTeamModalOpen] =
     useState(false)
@@ -65,7 +70,7 @@ export function Teams() {
 
   const teamsLocalStorageKey = '@kraftheinz:teams'
 
-  function handleOpenTeamMemberEvaluationModal(member: User) {
+  function handleOpenTeamMemberEvaluationModal(member: TeamMember) {
     setCurrentMemberEvaluating(member)
     setIsEvaluationModalOpen(true)
   }
@@ -82,7 +87,10 @@ export function Teams() {
     setIsEditingTeams(false)
   }
 
-  function handleOpenAddNewMemberModal(teamId: string, teamMembers: User[]) {
+  function handleOpenAddNewMemberModal(
+    teamId: string,
+    teamMembers: TeamMember[],
+  ) {
     setIsAddNewMemberModalOpen(true)
     setTeamIdCurrentlyEditing(teamId)
     setTeamMembersCurrentlyEditing(teamMembers)
@@ -124,7 +132,7 @@ export function Teams() {
       querySnapshot.forEach((doc) => {
         const isCurrentUserInThisTeam = !!doc
           .data()
-          .members.find((member: User) => member.id === user!.id)
+          .members.find((member: TeamMember) => member.id === user!.id)
 
         if (isCurrentUserInThisTeam) {
           teams.push({

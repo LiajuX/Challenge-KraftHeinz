@@ -90,7 +90,9 @@ export const LabelsContainer = styled.div`
   align-items: center;
   justify-content: space-between;
 
-  label {
-    cursor: pointer;
+  button {
+    height: 26px;
+
+    background: transparent;
   }
 `

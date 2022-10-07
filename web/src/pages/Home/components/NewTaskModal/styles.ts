@@ -9,6 +9,8 @@ export const NewTaskContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
+
+    margin-bottom: 1.75rem;
   }
 
   strong {
@@ -29,7 +31,7 @@ export const NewTaskContainer = styled.div`
 
 export const DueDate = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   align-self: flex-end;
   gap: 0.625rem;
 
@@ -39,7 +41,8 @@ export const DueDate = styled.div`
   font-weight: bold;
 
   input {
-    width: 8.75rem;
+    width: 8.7rem;
+
     border: 0;
 
     color: ${({ theme }) => theme['green-500']};
@@ -47,18 +50,13 @@ export const DueDate = styled.div`
     font-size: 1rem;
     font-weight: bold;
 
-    ::placeholder {
+    &::placeholder {
       color: ${({ theme }) => theme['green-500']};
     }
 
-    ::-webkit-inner-spin-button,
-    ::-webkit-calendar-picker-indicator {
-      cursor: pointer;
+    &:not(:placeholder-shown) {
+      width: 5rem;
     }
-  }
-
-  time {
-    margin-bottom: 0.0625rem;
   }
 `
 
@@ -94,6 +92,7 @@ export const Textarea = styled(TextareaComponent)`
 export const FilesContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: 2.125rem;
 
   margin: 1rem 0 2.125rem;
 `
@@ -169,6 +168,12 @@ export const SubtaskContainer = styled.div`
 
       svg {
         color: ${({ theme }) => theme['grey-200']};
+
+        transition: all 0.2s;
+
+        &:hover {
+          color: ${({ theme }) => theme['grey-300']};
+        }
       }
     }
   }
@@ -176,6 +181,10 @@ export const SubtaskContainer = styled.div`
   &:first-child {
     margin-top: 1rem;
   }
+`
+
+export const SubtaskDueDateContainer = styled.div`
+  margin: 1rem 0;
 `
 
 export const AddNewSubtask = styled.button`

@@ -1,8 +1,8 @@
 import { useState } from 'react'
+
 import { Button } from '../../../Button'
 import { Slider } from '../../../Form/Slider'
-import { Textarea } from '../../../Form/Textarea'
-import { Multiselect } from '../../../Multiselect'
+import { Attribute, Multiselect } from '../../../Multiselect'
 
 import * as S from './styles'
 
@@ -12,17 +12,36 @@ interface ManagerContentProps {
 
 export function ManagerContent({ onCloseModal }: ManagerContentProps) {
   const [performanceEvaluation, setPerformanceEvaluation] = useState(2)
-  const [dedicationEvaluation, setDedicationEvaluation] = useState(2)
+  const [whimEvaluation, setWhimEvaluation] = useState(2)
   const [comment, setComment] = useState('')
+  const [selectedAttributes, setSelectedAttributes] = useState<Attribute[]>([])
 
   function handleCompleteTask() {
     console.log({
       performanceEvaluation: performanceEvaluation + 1,
-      dedicationEvaluation: dedicationEvaluation + 1,
+      whimEvaluation: whimEvaluation + 1,
       comment,
     })
 
     onCloseModal()
+  }
+
+  function handleAttributeSelection(selectedAttribute: Attribute) {
+    const isThisAttributeAlreadySelected = selectedAttributes.find(
+      (attribute) => attribute.title === selectedAttribute.title,
+    )
+
+    if (isThisAttributeAlreadySelected) {
+      const filteredAtributes = selectedAttributes.filter(
+        (attribute) => attribute.title !== selectedAttribute.title,
+      )
+
+      setSelectedAttributes(filteredAtributes)
+    }
+
+    if (!isThisAttributeAlreadySelected) {
+      setSelectedAttributes((oldState) => [...oldState, selectedAttribute])
+    }
   }
 
   return (
@@ -39,12 +58,12 @@ export function ManagerContent({ onCloseModal }: ManagerContentProps) {
         />
       </S.SliderContainer>
 
-      <span>Satisfação dos princípios de liderança</span>
+      <span>Atenção aos detalhes e dedicação</span>
 
       <S.SliderContainer>
         <Slider
-          currentValue={dedicationEvaluation}
-          setCurrentValue={setDedicationEvaluation}
+          currentValue={whimEvaluation}
+          setCurrentValue={setWhimEvaluation}
         />
       </S.SliderContainer>
 
@@ -54,7 +73,11 @@ export function ManagerContent({ onCloseModal }: ManagerContentProps) {
           colaborador:
         </span>
 
-        <Multiselect category="behavior" />
+        <Multiselect
+          category="behavior"
+          selectedAttributes={selectedAttributes}
+          handleAttributeSelection={handleAttributeSelection}
+        />
       </section>
 
       <section>
@@ -63,7 +86,7 @@ export function ManagerContent({ onCloseModal }: ManagerContentProps) {
           efetuar a avaliação de desempenho
         </label>
 
-        <Textarea
+        <S.TextareaComponent
           id="comment"
           value={comment}
           onChange={(e) => setComment(e.target.value)}

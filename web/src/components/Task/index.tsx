@@ -7,6 +7,7 @@ import { Alarm } from 'phosphor-react'
 import { useAuth } from '../../hooks/useAuth'
 
 import { TaskEvaluationModal } from './TaskEvaluationModal'
+import { FileType } from '../File'
 import { Modal } from '../Modal'
 
 import reportImg from '../../assets/report.svg'
@@ -14,29 +15,19 @@ import cameraImg from '../../assets/camera.svg'
 import videoImg from '../../assets/video.svg'
 
 import * as S from './styles'
-
-export interface Subtask {
-  id: string
-  title: string
-  parent_task_title: string
-  isSubtask: boolean
-  description: string
-  due_date: Date
-  files?: []
-  finished_date?: Date
-  assigned_to: string
-}
+import { truncateText } from '../../utils/truncateText'
 
 export interface TaskType {
   id: string
   title: string
   description: string
-  subtasks?: Subtask[]
-  due_date: Date
-  files?: []
+  subtasks?: TaskType[]
+  due_date: Date | null
+  is_extra?: boolean
+  files?: FileType[]
   finished_date?: Date
-  isSubtask: boolean
-  icon: 'report' | 'camera' | 'video'
+  is_subtask: boolean
+  icon?: 'report' | 'camera' | 'video'
   assigned_to: string
 }
 
@@ -57,18 +48,21 @@ export function Task({ data }: Props) {
 
   const colors = useTheme()
 
+  const defaultIcon = 'report'
+
   const dueDateColor = user?.is_manager
     ? colors['grey-300']
-    : isToday(data.due_date) || isBefore(data.due_date, new Date())
+    : (data.due_date && isToday(data.due_date)) ||
+      (data.due_date && isBefore(data.due_date, new Date()))
     ? colors['red-500']
-    : isThisWeek(data.due_date) && !isToday(data.due_date)
+    : data.due_date &&
+      isThisWeek(data.due_date) &&
+      data.due_date &&
+      !isToday(data.due_date)
     ? colors['orange-500']
     : colors['grey-300']
 
-  const truncateDescription =
-    data.description.split(' ').length <= 21
-      ? data.description
-      : data.description.split(' ').slice(0, 21).join(' ') + '...'
+  const truncateDescription = truncateText(data.description, 21)
 
   function handleOpenEvaluationModal() {
     setIsModalOpen(true)
@@ -81,8 +75,8 @@ export function Task({ data }: Props) {
   return (
     <>
       <S.TaskContainer onClick={handleOpenEvaluationModal}>
-        <S.IconContainer iconStyle={data.icon}>
-          <img src={icon[data.icon]} alt="Ícone da tarefa" />
+        <S.IconContainer iconStyle={data.icon || defaultIcon}>
+          <img src={icon[data.icon || defaultIcon]} alt="Ícone da tarefa" />
         </S.IconContainer>
 
         <S.TaskDetails>
@@ -94,7 +88,9 @@ export function Task({ data }: Props) {
         <S.DueDate color={dueDateColor}>
           <Alarm weight="bold" size={20} />
 
-          <time>{format(data.due_date, 'dd/MM/yyyy', { locale: ptBR })}</time>
+          {data.due_date && (
+            <time>{format(data.due_date, 'dd/MM/yyyy', { locale: ptBR })}</time>
+          )}
         </S.DueDate>
       </S.TaskContainer>
 

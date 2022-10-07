@@ -1,32 +1,36 @@
-import { ChangeEvent, useEffect, useState } from 'react'
+import { ChangeEvent, FormEvent, useCallback, useEffect, useState } from 'react'
 import {
   addDoc,
   collection,
+  doc,
   onSnapshot,
   query,
   Timestamp,
+  updateDoc,
   where,
 } from 'firebase/firestore'
+import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage'
 import { v4 as uuidv4 } from 'uuid'
-import { addDays, format } from 'date-fns'
-import ptBR from 'date-fns/locale/pt-BR'
+import { useDropzone } from 'react-dropzone'
 import { Alarm, Plus, X } from 'phosphor-react'
 import { IoCheckmarkCircleOutline } from 'react-icons/io5'
+import DatePicker from 'react-datepicker'
 
 import { useAuth } from '../../../../hooks/useAuth'
 import { User } from '../../../../contexts/AuthContext'
 
-import { database } from '../../../../services/firebase'
+import { database, storage } from '../../../../services/firebase'
 
-import { TaskProps } from '../../../../components/Task/TaskEvaluationModal'
 import { Button } from '../../../../components/Button'
 import { FileInput } from '../../../../components/FileInput'
+import { File, FileType } from '../../../../components/File'
 
 import reportImg from '../../../../assets/report.svg'
 import cameraImg from '../../../../assets/camera.svg'
 import videoImg from '../../../../assets/video.svg'
 
 import * as S from './styles'
+import { TaskType } from '../../../../components/Task'
 
 interface TaskDetailsModalProps {
   onCloseModal: () => void
@@ -56,13 +60,23 @@ export function NewTaskModal({ onCloseModal }: TaskDetailsModalProps) {
   const [title, setTitle] = useState('')
   const [dueDate, setDueDate] = useState<null | Date>(null)
   const [description, setDescription] = useState('')
+  const [files, setFiles] = useState<FileType[]>([])
   const [hasSubtasks, setHasSubtasks] = useState(false)
-  const [subtasks, setSubtasks] = useState<TaskProps[]>([])
+  const [subtasks, setSubtasks] = useState<TaskType[]>([])
   const [availableEmployees, setAvailableEmployees] = useState<User[]>([])
   const [employeeAssignedTo, setEmployeeAssignedTo] = useState('')
   const [taskIcon, setTaskIcon] = useState({} as Icon)
+  const [isSendingData, setIsSendingData] = useState(false)
 
   const { user } = useAuth()
+
+  const {
+    getRootProps,
+    getInputProps,
+    acceptedFiles,
+    isFocused,
+    isDragReject,
+  } = useDropzone()
 
   const employeesLocalStorageKey = '@kraftheinz:employees'
 
@@ -83,11 +97,19 @@ export function NewTaskModal({ onCloseModal }: TaskDetailsModalProps) {
         id: uuidv4(),
         title: '',
         description: '',
-        due_date: dueDate,
+        due_date: null,
         assigned_to: user?.id,
         is_subtask: true,
-      } as TaskProps,
+      } as TaskType,
     ])
+  }
+
+  function handleRemoveNewSubtask(currentSubtask: TaskType) {
+    const filteredSubtasks = subtasks.filter(
+      (subtask) => subtask.id !== currentSubtask.id,
+    )
+
+    setSubtasks(filteredSubtasks)
   }
 
   function handleEmployeeSelection(employeeId: string) {
@@ -106,31 +128,102 @@ export function NewTaskModal({ onCloseModal }: TaskDetailsModalProps) {
     }
   }
 
-  function handleSubtaskTitleChange(
-    event: ChangeEvent<HTMLInputElement>,
-    currentSubtask: TaskProps,
-  ) {
-    const subtaskUpdated = {
-      ...currentSubtask,
-      title: event.target.value,
-    }
+  const handleSubtaskTitleChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>, currentSubtask: TaskType) => {
+      const subtaskUpdated = {
+        ...currentSubtask,
+        title: event.target.value,
+      }
 
-    console.log(subtaskUpdated)
-  }
+      const subtasksUpdated = subtasks.map((subtask) => {
+        if (subtask.id !== currentSubtask.id) {
+          return subtask
+        } else {
+          return subtaskUpdated
+        }
+      })
 
-  function handleSubtaskDescriptionChange(
-    event: ChangeEvent<HTMLTextAreaElement>,
-    subtask: TaskProps,
-  ) {
-    const subtaskUpdated = {
-      ...subtask,
-      description: event.target.value,
-    }
+      setSubtasks(subtasksUpdated)
+    },
+    [subtasks],
+  )
 
-    console.log(subtaskUpdated)
-  }
+  const handleSubtaskDueDateChange = useCallback(
+    (date: Date, currentSubtask: TaskType) => {
+      const subtaskUpdated = {
+        ...currentSubtask,
+        due_date: date,
+      }
 
-  async function handleCreateTask() {
+      const subtasksUpdated = subtasks.map((subtask) => {
+        if (subtask.id !== currentSubtask.id) {
+          return subtask
+        } else {
+          return subtaskUpdated
+        }
+      })
+
+      setSubtasks(subtasksUpdated)
+    },
+    [subtasks],
+  )
+
+  const handleSubtaskDescriptionChange = useCallback(
+    (event: ChangeEvent<HTMLTextAreaElement>, currentSubtask: TaskType) => {
+      const subtaskUpdated = {
+        ...currentSubtask,
+        description: event.target.value,
+      }
+
+      const subtasksUpdated = subtasks.map((subtask) => {
+        if (subtask.id !== currentSubtask.id) {
+          return subtask
+        } else {
+          return subtaskUpdated
+        }
+      })
+
+      setSubtasks(subtasksUpdated)
+    },
+    [subtasks],
+  )
+
+  const sendFilesToCloudStorage = useCallback(
+    async (taskId: string) => {
+      const storedFiles: FileType[] = []
+
+      acceptedFiles.forEach(async (file) => {
+        const storageRef = ref(
+          storage,
+          `/attachments/${user?.id}/tasks/${taskId}/${file.name}`,
+        )
+
+        const uploadFileTask = uploadBytesResumable(storageRef, file)
+
+        uploadFileTask.on(
+          'state_changed',
+          (snapshot) => {},
+          (error) => {
+            console.log(error.message)
+          },
+          () => {
+            getDownloadURL(uploadFileTask.snapshot.ref).then((downloadURL) => {
+              const newFile = { name: file.name, url: downloadURL }
+
+              storedFiles.push(newFile)
+
+              setFiles([...storedFiles])
+            })
+          },
+        )
+      })
+    },
+    [acceptedFiles, user?.id],
+  )
+
+  const handleCreateNewTask = useCallback(async () => {
+    setIsSendingData(true)
+
     const taskRef = collection(database, 'tasks')
 
     await addDoc(taskRef, {
@@ -145,13 +238,38 @@ export function NewTaskModal({ onCloseModal }: TaskDetailsModalProps) {
       subtasks: hasSubtasks ? subtasks : null,
       finished_date: user!.is_manager ? null : Timestamp.fromDate(new Date()),
     })
-      .then(() => {
-        onCloseModal()
+      .then((taskCreated) => {
+        const taskCreatedRef = doc(database, 'tasks', taskCreated.id)
+
+        if (acceptedFiles.length > 0) {
+          sendFilesToCloudStorage(taskCreated.id).then(async () => {
+            await updateDoc(taskCreatedRef, {
+              files,
+            })
+          })
+        }
       })
       .catch(() => {
         window.alert('Não foi possível criar nova tarefa!')
       })
-  }
+      .finally(() => {
+        setIsSendingData(false)
+        onCloseModal()
+      })
+  }, [
+    acceptedFiles.length,
+    description,
+    dueDate,
+    employeeAssignedTo,
+    files,
+    hasSubtasks,
+    onCloseModal,
+    sendFilesToCloudStorage,
+    subtasks,
+    taskIcon.name,
+    title,
+    user,
+  ])
 
   useEffect(() => {
     const employeesQuery = query(
@@ -189,20 +307,17 @@ export function NewTaskModal({ onCloseModal }: TaskDetailsModalProps) {
 
         {user?.is_manager && (
           <S.DueDate>
-            <Alarm weight="bold" size={20} />
+            <label htmlFor="date-picker">
+              <Alarm weight="bold" size={20} />
+            </label>
 
-            <input
-              id="due-date"
-              type="text"
-              placeholder="Selecione um prazo"
-              onFocus={(e) => (e.target.type = 'date')}
-              value={
-                dueDate
-                  ? format(addDays(dueDate, 1), 'yyyy-MM-dd', { locale: ptBR })
-                  : undefined
-              }
-              onChange={(e) => setDueDate(new Date(e.target.value))}
-              min="2018-01-01"
+            <DatePicker
+              id="date-picker"
+              dateFormat="dd/MM/yyyy"
+              selected={dueDate}
+              placeholderText="Selecione um prazo"
+              closeOnScroll={(e) => e.target === document}
+              onChange={(date: Date) => setDueDate(date)}
             />
           </S.DueDate>
         )}
@@ -225,7 +340,21 @@ export function NewTaskModal({ onCloseModal }: TaskDetailsModalProps) {
       <span>Arquivos</span>
 
       <S.FilesContainer>
-        <FileInput />
+        {acceptedFiles.map((file) => (
+          <File
+            key={file.name}
+            data={{ name: file.name }}
+            taskAttached="Entrega"
+          />
+        ))}
+
+        <FileInput
+          getRootProps={getRootProps}
+          getInputProps={getInputProps}
+          acceptedFiles={acceptedFiles}
+          isDragReject={isDragReject}
+          isFocused={isFocused}
+        />
       </S.FilesContainer>
 
       {user?.is_manager && (
@@ -251,10 +380,29 @@ export function NewTaskModal({ onCloseModal }: TaskDetailsModalProps) {
                     <strong>Nova subtarefa {index + 1}</strong>
                   </div>
 
-                  <button>
+                  <button onClick={() => handleRemoveNewSubtask(subtask)}>
                     <X weight="bold" size={18} onClick={() => {}} />
                   </button>
                 </header>
+
+                <S.SubtaskDueDateContainer>
+                  <S.DueDate>
+                    <label htmlFor="subtask-date-picker">
+                      <Alarm weight="bold" size={20} />
+                    </label>
+
+                    <DatePicker
+                      id="subtask-date-picker"
+                      dateFormat="dd/MM/yyyy"
+                      selected={subtask.due_date}
+                      maxDate={dueDate}
+                      placeholderText="Selecione um prazo"
+                      onChange={(date: Date) =>
+                        handleSubtaskDueDateChange(date, subtask)
+                      }
+                    />
+                  </S.DueDate>
+                </S.SubtaskDueDateContainer>
 
                 <S.TitleInput
                   defaultValue={subtask.title}
@@ -323,8 +471,9 @@ export function NewTaskModal({ onCloseModal }: TaskDetailsModalProps) {
         <Button
           title="Postar"
           buttonStyle="secondary"
+          isLoading={isSendingData}
           disabled={isButtonDisabled}
-          onClick={handleCreateTask}
+          onClick={handleCreateNewTask}
         />
       </S.ButtonContainer>
     </S.NewTaskContainer>

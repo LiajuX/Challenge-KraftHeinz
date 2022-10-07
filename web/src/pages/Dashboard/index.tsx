@@ -55,7 +55,7 @@ export function Dashboard() {
               <S.Quote isFocused={isEditingUserExpectations}>
                 <span>“</span>
 
-                <Textarea
+                <textarea
                   ref={userExpectationsInputRef}
                   value={userExpectations}
                   onChange={(e) => setUserExpectations(e.target.value)}

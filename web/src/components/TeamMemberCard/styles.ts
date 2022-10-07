@@ -2,7 +2,7 @@ import styled, { css } from 'styled-components'
 
 export const TeamMemberCardContainer = styled.div`
   display: grid;
-  grid-template-columns: 1fr 3fr;
+  grid-template-columns: 2fr 5fr;
 
   padding: 0.3125rem 1.5rem 0.3125rem 0.3125rem;
   border-radius: 100px 9px 9px 100px;
@@ -38,10 +38,15 @@ export const UserInfo = styled.div<UserInfoProps>`
   }
 
   strong {
+    width: 10rem;
+
     font-size: 0.9375rem;
+    text-align: left;
   }
 
   span {
+    margin: 0 !important;
+
     ${({ theme, role }) =>
       role === 'manager'
         ? css`

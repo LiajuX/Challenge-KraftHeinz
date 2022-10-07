@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 export const TaskDetailsContainer = styled.div`
   padding: 1.75rem 4.875rem 2.375rem;
@@ -7,6 +7,9 @@ export const TaskDetailsContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 2.125rem;
+
+    margin-bottom: 1.75rem;
 
     span {
       display: inline-block;
@@ -67,22 +70,33 @@ export const TaskInfo = styled.div`
 export const FilesContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: 2.125rem;
 
   margin-top: 1.0625rem;
 `
 
-export const DueDate = styled.div`
+interface DueDateProps {
+  finished?: boolean
+}
+
+export const DueDate = styled.div<DueDateProps>`
   display: flex;
   align-items: center;
   gap: 0.625rem;
 
-  color: ${({ theme }) => theme['green-500']};
+  color: ${({ finished, theme }) =>
+    finished ? theme['grey-200'] : theme['green-500']};
 
   time {
     margin-bottom: 0.0625rem;
 
     font-size: 1rem;
     font-weight: bold;
+  }
+
+  strong {
+    color: ${({ finished, theme }) =>
+      finished ? theme['grey-200'] : theme['green-500']};
   }
 `
 
@@ -93,7 +107,11 @@ export const SubtasksContainer = styled.div`
   justify-content: center;
 `
 
-export const SubtaskButton = styled.button`
+interface SubtaskButtonProps {
+  finished: boolean
+}
+
+export const SubtaskButton = styled.button<SubtaskButtonProps>`
   width: 100%;
 
   margin-bottom: 1rem;
@@ -110,8 +128,20 @@ export const SubtaskButton = styled.button`
     margin-top: 1rem;
   }
 
+  &:disabled {
+    cursor: not-allowed;
+  }
+
   h3 {
     margin-bottom: 0;
+
+    ${({ finished, theme }) =>
+      finished &&
+      css`
+        color: ${theme['grey-200']} !important;
+
+        text-decoration: line-through;
+      `};
   }
 `
 

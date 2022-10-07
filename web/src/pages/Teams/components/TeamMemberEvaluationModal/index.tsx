@@ -1,19 +1,18 @@
 import { useState } from 'react'
 
-import { User } from '../../../../contexts/AuthContext'
-
+import { TeamMember } from '../..'
 import { Button } from '../../../../components/Button'
 import { Slider } from '../../../../components/Form/Slider'
 import { Textarea } from '../../../../components/Form/Textarea'
 import { Modal } from '../../../../components/Modal'
-import { Multiselect } from '../../../../components/Multiselect'
+import { Attribute, Multiselect } from '../../../../components/Multiselect'
 
 import * as S from './styles'
 
 interface TeamMemberEvaluationModalProps {
   isOpen: boolean
   onCloseModal: () => void
-  member: User
+  member: TeamMember
 }
 
 export function TeamMemberEvaluationModal({
@@ -26,6 +25,7 @@ export function TeamMemberEvaluationModal({
   const [workBehaviorEvaluation, setWorkBehaviorEvaluation] = useState(2)
   const [communicationEvaluation, setCommunicationEvaluation] = useState(2)
   const [proactivityEvaluation, setProactivityEvaluation] = useState(2)
+  const [selectedAttributes, setSelectedAttributes] = useState<Attribute[]>([])
   const [comment, setComment] = useState('')
 
   function handleCompleteTeamMemberEvaluation() {
@@ -39,6 +39,24 @@ export function TeamMemberEvaluationModal({
     })
 
     onCloseModal()
+  }
+
+  function handleAttributeSelection(selectedAttribute: Attribute) {
+    const isThisAttributeAlreadySelected = selectedAttributes.find(
+      (attribute) => attribute.title === selectedAttribute.title,
+    )
+
+    if (isThisAttributeAlreadySelected) {
+      const filteredAtributes = selectedAttributes.filter(
+        (attribute) => attribute.title !== selectedAttribute.title,
+      )
+
+      setSelectedAttributes(filteredAtributes)
+    }
+
+    if (!isThisAttributeAlreadySelected) {
+      setSelectedAttributes((oldState) => [...oldState, selectedAttribute])
+    }
   }
 
   return (
@@ -109,7 +127,11 @@ export function TeamMemberEvaluationModal({
           Selecione as opções que melhor descreve o comportamento dessa pessoa:
         </span>
 
-        <Multiselect category="behavior" />
+        <Multiselect
+          category="behavior"
+          selectedAttributes={selectedAttributes}
+          handleAttributeSelection={handleAttributeSelection}
+        />
 
         <div>
           <label htmlFor="comment">Se quiser, deixe um comentário </label>

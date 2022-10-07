@@ -1,10 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { useDropzone } from 'react-dropzone'
 import { format } from 'date-fns'
 import ptBR from 'date-fns/locale/pt-BR'
 import { Alarm } from 'phosphor-react'
+import { doc, Timestamp, updateDoc } from 'firebase/firestore'
 
 import { useAuth } from '../../../hooks/useAuth'
 
+import { database } from '../../../services/firebase'
+
+import { TaskType } from '..'
+import { File } from '../../File'
 import { FileInput } from '../../FileInput'
 import { StaffContent } from './StaffContent'
 import { ManagerContent } from './ManagerContent'
@@ -12,19 +18,8 @@ import { Button } from '../../Button'
 
 import * as S from './styles'
 
-export interface TaskProps {
-  id?: string
-  title: string
-  description: string
-  parent_task_title?: string
-  due_date: Date | null
-  files?: []
-  is_subtask: boolean
-  subtasks?: TaskProps[]
-}
-
 interface TaskDetailsModalProps {
-  data: TaskProps
+  data: TaskType
   onCloseModal: () => void
 }
 
@@ -32,9 +27,17 @@ export function TaskEvaluationModal({
   data,
   onCloseModal,
 }: TaskDetailsModalProps) {
-  const [taskData, setTaskData] = useState<TaskProps>(data)
+  const [taskData, setTaskData] = useState<TaskType>(data)
 
   const { user } = useAuth()
+
+  const {
+    getRootProps,
+    getInputProps,
+    acceptedFiles,
+    isFocused,
+    isDragReject,
+  } = useDropzone()
 
   const parentTask = data
 
@@ -42,6 +45,20 @@ export function TaskEvaluationModal({
     parentTask.title.split(' ').length <= 3
       ? parentTask.title
       : parentTask.title.split(' ').slice(0, 3).join(' ') + '...'
+
+  const subtasksNotFinished = taskData.subtasks?.find(
+    (subtask) => !subtask.finished_date,
+  )
+
+  async function handleCompleteTaskWithSubtask() {
+    if (!subtasksNotFinished && !user?.is_manager) {
+      const taskRef = doc(database, 'tasks', taskData.id)
+
+      await updateDoc(taskRef, {
+        finished_date: Timestamp.fromDate(new Date()),
+      })
+    }
+  }
 
   return (
     <S.TaskDetailsContainer>
@@ -84,37 +101,55 @@ export function TaskEvaluationModal({
           </S.TaskInfo>
 
           <span>Subtarefas</span>
+
           <S.SubtasksContainer>
             {taskData.subtasks.map((subtask, index) => (
-              <>
-                <S.SubtaskButton
-                  key={`${subtask.title}-${subtask.due_date}`}
-                  onClick={() => setTaskData(subtask)}
-                >
-                  <header>
-                    <strong>Subtarefa {index + 1}</strong>
-                    <S.DueDate>
-                      <Alarm weight="bold" size={20} />
+              <S.SubtaskButton
+                key={`${subtask.id}-${index}`}
+                onClick={() => setTaskData(subtask)}
+                disabled={!user?.is_manager && !!subtask.finished_date}
+                finished={!user?.is_manager && !!subtask.finished_date}
+              >
+                <header>
+                  <strong>Subtarefa {index + 1}</strong>
 
-                      {subtask.due_date && (
-                        <time>
-                          {format(subtask.due_date, 'dd/MM/yyyy', {
-                            locale: ptBR,
-                          })}
-                        </time>
-                      )}
-                    </S.DueDate>
-                  </header>
+                  <S.DueDate
+                    finished={!user?.is_manager && !!subtask.finished_date}
+                  >
+                    <Alarm weight="bold" size={20} />
 
-                  <h3>{subtask.title}</h3>
-                </S.SubtaskButton>
-              </>
+                    {user?.is_manager
+                      ? subtask.due_date && (
+                          <time>
+                            {format(subtask.due_date, 'dd/MM/yyyy', {
+                              locale: ptBR,
+                            })}
+                          </time>
+                        )
+                      : !subtask.finished_date &&
+                        subtask.due_date && (
+                          <time>
+                            {format(subtask.due_date, 'dd/MM/yyyy', {
+                              locale: ptBR,
+                            })}
+                          </time>
+                        )}
+
+                    {!user?.is_manager && subtask.finished_date && (
+                      <strong>ENTREGUE</strong>
+                    )}
+                  </S.DueDate>
+                </header>
+
+                <h3>{subtask.title}</h3>
+              </S.SubtaskButton>
             ))}
             <S.ButtonContainer>
               <Button
                 title="Concluir"
                 buttonStyle="secondary"
-                onClick={() => {}}
+                onClick={handleCompleteTaskWithSubtask}
+                disabled={!!subtasksNotFinished}
               />
             </S.ButtonContainer>
           </S.SubtasksContainer>
@@ -124,13 +159,51 @@ export function TaskEvaluationModal({
           <S.TaskInfo>
             <span>Descrição</span>
 
-            <p>{data.description}</p>
+            <p>{taskData.description}</p>
 
             <span>Arquivos</span>
           </S.TaskInfo>
 
           <S.FilesContainer>
-            {data.files ? <FileInput /> : <FileInput />}
+            {!taskData.files && (
+              <FileInput
+                getRootProps={getRootProps}
+                getInputProps={getInputProps}
+                acceptedFiles={acceptedFiles}
+                isDragReject={isDragReject}
+                isFocused={isFocused}
+              />
+            )}
+
+            {taskData.files?.length === 0 && (
+              <FileInput
+                getRootProps={getRootProps}
+                getInputProps={getInputProps}
+                acceptedFiles={acceptedFiles}
+                isDragReject={isDragReject}
+                isFocused={isFocused}
+              />
+            )}
+
+            {taskData.files?.map((file) => (
+              <File
+                key={file.name}
+                data={{ name: file.name, url: file.url }}
+                taskAttached={
+                  taskData.is_subtask ? 'Entrega parcial' : 'Entrega'
+                }
+              />
+            ))}
+
+            {taskData.files && taskData.files.length > 0 && (
+              <FileInput
+                getRootProps={getRootProps}
+                getInputProps={getInputProps}
+                acceptedFiles={acceptedFiles}
+                isDragReject={isDragReject}
+                isFocused={isFocused}
+              />
+            )}
           </S.FilesContainer>
 
           <hr />
@@ -138,7 +211,11 @@ export function TaskEvaluationModal({
           {user?.is_manager ? (
             <ManagerContent onCloseModal={onCloseModal} />
           ) : (
-            <StaffContent onCloseModal={onCloseModal} />
+            <StaffContent
+              task={taskData}
+              parentTaskId={parentTask.id}
+              onCloseModal={onCloseModal}
+            />
           )}
         </>
       )}

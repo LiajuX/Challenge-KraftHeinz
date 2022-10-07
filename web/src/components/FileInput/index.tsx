@@ -1,22 +1,31 @@
-import { useState } from 'react'
+import { useCallback } from 'react'
+import { useDropzone } from 'react-dropzone'
 import { Plus } from 'phosphor-react'
 
 import * as S from './styles'
 
-export function FileInput() {
-  const [files, setFiles] = useState([])
+interface FileInputProps {
+  getRootProps: any
+  getInputProps: any
+  acceptedFiles: File[]
+  isFocused: boolean
+  isDragReject: boolean
+}
 
-  function uploadFiles(event: any) {
-    console.log(event.target.files[0])
-  }
-
+export function FileInput({
+  getRootProps,
+  getInputProps,
+  acceptedFiles,
+  isFocused,
+  isDragReject,
+}: FileInputProps) {
   return (
-    <S.FileInput>
+    <S.FileInputContainer {...getRootProps({ isFocused, isDragReject })}>
       <label htmlFor="file">
         <Plus size={18} />
       </label>
 
-      <input id="for" type="file" onChange={uploadFiles} multiple />
-    </S.FileInput>
+      <input id="for" type="file" {...getInputProps()} />
+    </S.FileInputContainer>
   )
 }

@@ -1,7 +1,6 @@
 import { useState } from 'react'
 
-import { User } from '../../../../contexts/AuthContext'
-
+import { TeamMember } from '../..'
 import { Button } from '../../../../components/Button'
 import { Slider } from '../../../../components/Form/Slider'
 import { Textarea } from '../../../../components/Form/Textarea'
@@ -13,7 +12,7 @@ import * as S from './styles'
 interface TeamMemberManagerEvaluationModalProps {
   isOpen: boolean
   onCloseModal: () => void
-  member: User
+  member: TeamMember
 }
 
 export function TeamMemberManagerEvaluationModal({

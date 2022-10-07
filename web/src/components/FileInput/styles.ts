@@ -1,8 +1,8 @@
 import styled from 'styled-components'
 
-export const FileInputContainer = styled.div``
-
-export const FileInput = styled.div`
+export const FileInputContainer = styled.div.attrs({
+  classname: 'dropzone',
+})`
   position: relative;
 
   flex: 1;
@@ -15,20 +15,21 @@ export const FileInput = styled.div`
   border: 2px solid ${({ theme }) => theme['grey-100']};
   border-radius: 9px;
 
-  color: ${({ theme }) => theme['grey-200']};
   background: ${({ theme }) => theme.white};
+
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s;
 
   label {
     position: absolute;
 
+    color: ${({ theme }) => theme['grey-200']} !important;
+
     cursor: pointer;
   }
 
-  input {
-    opacity: 0;
-    width: 100%;
-    height: 100%;
-
-    cursor: pointer;
+  &:hover {
+    border-style: dashed;
   }
 `

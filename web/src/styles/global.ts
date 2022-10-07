@@ -42,6 +42,7 @@ export const GlobalStyle = createGlobalStyle`
     color: ${(props) => props.theme.black};
     background: ${(props) => props.theme.white};
 
+    text-rendering: optimizeLegibility;
     -webbkit-font-smoothing: antialiased;
   }
 

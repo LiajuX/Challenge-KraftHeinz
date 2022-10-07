@@ -4,17 +4,17 @@ import { IoCheckmarkCircleOutline } from 'react-icons/io5'
 
 import { useAuth } from '../../../../hooks/useAuth'
 
-import { User } from '../../../../contexts/AuthContext'
 import { database } from '../../../../services/firebase'
 
+import { TeamMember } from '../..'
 import { SearchBar } from '../../../../components/SearchBar'
 
 import * as S from './styles'
 
 interface EmployeesListModalProps {
-  selectedNewMembers: User[]
-  unavailableMembers?: User[]
-  setSelectedNewMembers: (employees: User[]) => void
+  selectedNewMembers: TeamMember[]
+  unavailableMembers?: TeamMember[]
+  setSelectedNewMembers: (employees: TeamMember[]) => void
 }
 
 export function EmployeesList({
@@ -22,10 +22,10 @@ export function EmployeesList({
   unavailableMembers,
   setSelectedNewMembers,
 }: EmployeesListModalProps) {
-  const [data, setData] = useState<User[]>([])
-  const [searchListData, setSearchListData] = useState<User[]>([])
+  const [data, setData] = useState<TeamMember[]>([])
+  const [searchListData, setSearchListData] = useState<TeamMember[]>([])
   const [search, setSearch] = useState('')
-  const [selectedMembers, setSelectedMembers] = useState<User[]>(
+  const [selectedMembers, setSelectedMembers] = useState<TeamMember[]>(
     unavailableMembers || selectedNewMembers,
   )
 
@@ -33,7 +33,7 @@ export function EmployeesList({
 
   const employeesLocalStorageKey = '@kraftheinz:employees'
 
-  function handleSelectEmployee(employee: User) {
+  function handleSelectEmployee(employee: TeamMember) {
     if (selectedMembers.find((member) => member.id === employee.id)) {
       setSelectedMembers(
         selectedMembers.filter((member) => member.id !== employee.id),
@@ -54,13 +54,13 @@ export function EmployeesList({
     )
 
     const unsubscribe = onSnapshot(employeesQuery, (querySnapshot) => {
-      const employees: User[] = []
+      const employees: TeamMember[] = []
 
       querySnapshot.forEach((doc) => {
         employees.push({
           id: doc.id,
           ...doc.data(),
-        } as User)
+        } as TeamMember)
       })
 
       const employeesLocalData = localStorage.getItem(employeesLocalStorageKey)
