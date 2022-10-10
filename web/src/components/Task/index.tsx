@@ -26,6 +26,7 @@ export interface TaskType {
   is_extra?: boolean
   files?: FileType[]
   finished_date?: Date
+  is_evaluated: boolean
   is_subtask: boolean
   icon?: 'report' | 'camera' | 'video'
   assigned_to: string

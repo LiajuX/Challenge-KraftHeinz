@@ -68,11 +68,15 @@ export function Home() {
           })
         }
 
+        const filesRefCreatedBy = !doc.data().is_extra
+          ? user?.is_manager
+            ? user.id
+            : user?.manager_id
+          : doc.data().assigned_to
+
         const filesRef = ref(
           storage,
-          `/attachments/${
-            user?.is_manager ? user.id : user?.manager_id
-          }/tasks/${doc.id}/`,
+          `/attachments/${filesRefCreatedBy}/tasks/${doc.id}/`,
         )
 
         listAll(filesRef)
@@ -101,7 +105,7 @@ export function Home() {
         } as TaskType
 
         if (
-          (user!.is_manager && !!task.finished_date) ||
+          (user!.is_manager && !!task.finished_date && !task.is_evaluated) ||
           (!user!.is_manager && !task.finished_date)
         ) {
           storedTasks.push(task)

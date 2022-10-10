@@ -28,6 +28,7 @@ export function TaskEvaluationModal({
   onCloseModal,
 }: TaskDetailsModalProps) {
   const [taskData, setTaskData] = useState<TaskType>(data)
+  const [isCompletingTask, setIsCompletingTask] = useState(false)
 
   const { user } = useAuth()
 
@@ -46,11 +47,13 @@ export function TaskEvaluationModal({
       ? parentTask.title
       : parentTask.title.split(' ').slice(0, 3).join(' ') + '...'
 
-  const subtasksNotFinished = taskData.subtasks?.find(
-    (subtask) => !subtask.finished_date,
-  )
+  const subtasksNotFinished = user!.is_manager
+    ? taskData.subtasks?.find((subtask) => !subtask.is_evaluated)
+    : taskData.subtasks?.find((subtask) => !subtask.finished_date)
 
   async function handleCompleteTaskWithSubtask() {
+    setIsCompletingTask(true)
+
     if (!subtasksNotFinished && !user?.is_manager) {
       const taskRef = doc(database, 'tasks', taskData.id)
 
@@ -58,6 +61,17 @@ export function TaskEvaluationModal({
         finished_date: Timestamp.fromDate(new Date()),
       })
     }
+
+    if (!subtasksNotFinished && user?.is_manager) {
+      const taskRef = doc(database, 'tasks', taskData.id)
+
+      await updateDoc(taskRef, {
+        is_evaluated: true,
+      })
+    }
+
+    setIsCompletingTask(false)
+    onCloseModal()
   }
 
   return (
@@ -107,19 +121,29 @@ export function TaskEvaluationModal({
               <S.SubtaskButton
                 key={`${subtask.id}-${index}`}
                 onClick={() => setTaskData(subtask)}
-                disabled={!user?.is_manager && !!subtask.finished_date}
-                finished={!user?.is_manager && !!subtask.finished_date}
+                disabled={
+                  (!user?.is_manager && !!subtask.finished_date) ||
+                  subtask.is_evaluated
+                }
+                finished={
+                  (!user?.is_manager && !!subtask.finished_date) ||
+                  subtask.is_evaluated
+                }
               >
                 <header>
                   <strong>Subtarefa {index + 1}</strong>
 
                   <S.DueDate
-                    finished={!user?.is_manager && !!subtask.finished_date}
+                    finished={
+                      (!user?.is_manager && !!subtask.finished_date) ||
+                      (user?.is_manager && subtask.is_evaluated)
+                    }
                   >
                     <Alarm weight="bold" size={20} />
 
                     {user?.is_manager
-                      ? subtask.due_date && (
+                      ? subtask.due_date &&
+                        !subtask.is_evaluated && (
                           <time>
                             {format(subtask.due_date, 'dd/MM/yyyy', {
                               locale: ptBR,
@@ -138,6 +162,10 @@ export function TaskEvaluationModal({
                     {!user?.is_manager && subtask.finished_date && (
                       <strong>ENTREGUE</strong>
                     )}
+
+                    {user?.is_manager && subtask.is_evaluated && (
+                      <strong>AVALIADO</strong>
+                    )}
                   </S.DueDate>
                 </header>
 
@@ -150,6 +178,7 @@ export function TaskEvaluationModal({
                 buttonStyle="secondary"
                 onClick={handleCompleteTaskWithSubtask}
                 disabled={!!subtasksNotFinished}
+                isLoading={isCompletingTask}
               />
             </S.ButtonContainer>
           </S.SubtasksContainer>
@@ -209,7 +238,11 @@ export function TaskEvaluationModal({
           <hr />
 
           {user?.is_manager ? (
-            <ManagerContent onCloseModal={onCloseModal} />
+            <ManagerContent
+              task={taskData}
+              parentTaskId={parentTask.id}
+              onCloseModal={onCloseModal}
+            />
           ) : (
             <StaffContent
               task={taskData}

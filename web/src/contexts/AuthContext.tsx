@@ -7,6 +7,8 @@ import { doc, onSnapshot } from 'firebase/firestore'
 
 import { auth, database } from '../services/firebase'
 
+import { TeamMemberEvaluation } from '../pages/Teams/components/TeamMemberEvaluationModal'
+
 interface UserAttributes {
   open_mind: {
     amount: number
@@ -25,6 +27,23 @@ interface UserAttributes {
   }
 }
 
+interface EvaluatedTask {
+  id: string
+  title: string
+  is_extra: boolean
+  finished_date: Date
+  comments: {
+    manager?: string
+    workstation?: string
+  }
+  evaluations: {
+    manager: number
+    workstation: number
+    overall: number
+    whim: number
+  }
+}
+
 export interface User {
   id: string
   name: string
@@ -32,9 +51,12 @@ export interface User {
   expectations?: string
   ponctuation: number
   is_manager: boolean
+  manager_bias?: number
   manager_id?: string
   role: string
   role_insensitive: string
+  evaluated_tasks?: EvaluatedTask[]
+  team_evaluations?: TeamMemberEvaluation[]
   potential: 'A' | 'B' | 'C'
   task_amount?: number
   genre: 'male' | 'female' | 'other'

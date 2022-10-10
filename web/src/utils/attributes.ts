@@ -22,7 +22,7 @@ export const behaviorAttributes = [
       {
         id: 'friendly',
         category: 'friendly',
-        title: 'Amistoso',
+        title: 'Amigável',
         action: +1,
       },
       {
@@ -85,3 +85,6 @@ export const behaviorAttributes = [
     ],
   },
 ]
+
+export const behaviorAttributeCategories =
+  'dedication' || 'friendly' || 'open_mind' || 'organization' || 'perception'

@@ -104,19 +104,25 @@ export const potentialChartOptions = {
 
 interface MultiaxisLineChartProps {
   title: string
+  labels: string[]
+  ponctuationData: number[]
+  potentialDataValues: number[]
 }
 
-export function MultiaxisLineChart({ title }: MultiaxisLineChartProps) {
+export function MultiaxisLineChart({
+  title,
+  labels,
+  ponctuationData,
+  potentialDataValues,
+}: MultiaxisLineChartProps) {
   const colors = useTheme()
-
-  const labels = ['05/02', '05/04', '05/06', '05/08', '05/10', '05/12']
 
   const evaluationData = {
     labels,
     datasets: [
       {
         label: 'Nota',
-        data: [4, 1, 3, 4, 5, 4],
+        data: ponctuationData,
         pointRadius: 6,
         borderColor: colors['grey-100'],
         backgroundColor: function (context: any) {
@@ -145,7 +151,7 @@ export function MultiaxisLineChart({ title }: MultiaxisLineChartProps) {
     datasets: [
       {
         label: 'Potencial',
-        data: [2, 1, 2, 2, 3, 2],
+        data: potentialDataValues,
         pointRadius: 6,
         borderColor: colors['grey-100'],
         backgroundColor: function (context: any) {

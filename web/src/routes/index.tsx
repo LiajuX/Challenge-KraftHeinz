@@ -1,5 +1,6 @@
-import { useEffect } from 'react'
-import { Route, Routes as ReactRoutes, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Route, Routes as ReactRoutes, Navigate } from 'react-router-dom'
+import { getAuth, User } from 'firebase/auth'
 
 import { useAuth } from '../hooks/useAuth'
 
@@ -17,10 +18,19 @@ export function Routes() {
 
   return (
     <ReactRoutes>
-      <Route path="/landing" element={<Landing />} />
-      <Route path="/signin" element={<SignIn />} />
+      <Route
+        path="/landing"
+        element={user ? <Navigate replace to="/home" /> : <Landing />}
+      />
+      <Route
+        path="/signin"
+        element={user ? <Navigate replace to="/home" /> : <SignIn />}
+      />
 
-      <Route path="/" element={<DefaultLayout />}>
+      <Route
+        path="/"
+        element={user ? <DefaultLayout /> : <Navigate replace to="/signin" />}
+      >
         <Route path="/home" element={<Home />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/history" element={<History />} />

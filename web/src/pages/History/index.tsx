@@ -7,80 +7,20 @@ import { useAuth } from '../../hooks/useAuth'
 import { database } from '../../services/firebase'
 import { User } from '../../contexts/AuthContext'
 
+import { Bias } from '../../components/Bias'
 import { SatisfactionEmoji } from '../../components/SatisfactionEmoji'
 import { TeamMemberCard } from '../../components/TeamMemberCard'
 import { Modal } from '../../components/Modal'
 import { SearchBar } from '../../components/SearchBar'
-import {
-  EmployeeHistoryModal,
-  HistoryProps,
-} from './components/EmployeeHistoryModal'
+import { EmployeeHistoryModal } from './components/EmployeeHistoryModal'
 
 import * as S from './styles'
-
-const historyTest: HistoryProps = {
-  name: 'Diego Galvão',
-  potential: 'B',
-  expectations:
-    'Desempenhar ainda mais e principalmente evoluir minhas capacidades administrativas com o foco na liderança de equipe. Continuar a trabalhar minha capacidade comunicativa entre equipe e gerente para melhorar ainda mais!',
-  evaluations: [
-    {
-      id: '3yYoYE2H0FGVlY3lOSSI',
-      title:
-        'Imagem para publicação no Facebook sobre a Independência do Brasil',
-      date: new Date(2022, 5, 10),
-      ponctuation: 4,
-      comment:
-        'Sit amet consectetur adipiscing elit duis tristique. Purus sit amet luctus venenatis lectus magna. Commodo ullamcorper a lacus vestibulum sed arcu non. Diam in arcu cursus euismod quis viverra.',
-    },
-    {
-      id: '3yYoYE2H0FGVlY3lOSSI',
-      title:
-        'Imagem para publicação no Facebook sobre a Independência do Brasil',
-      date: new Date(2022, 5, 10),
-      ponctuation: 4,
-      comment:
-        'Sit amet consectetur adipiscing elit duis tristique. Purus sit amet luctus venenatis lectus magna. Commodo ullamcorper a lacus vestibulum sed arcu non. Diam in arcu cursus euismod quis viverra.',
-    },
-  ],
-  bias_report: [
-    {
-      employee: {
-        id: 'Q8mOYOy2evSPPYL9GV7Ar9MRSN52',
-        name: 'Guilherme Borba',
-        avatar_url: 'https://github.com/diego3g.png',
-        role: 'Marketing',
-        role_insensitive: 'marketing',
-      },
-      bias: -1,
-    },
-    {
-      employee: {
-        id: 'ZtrLbGWicKaZuWD3QdtP',
-        name: 'Carol Medeiros',
-        avatar_url: 'https://github.com/rafaballerini.png',
-        role: 'Desenvolvedora',
-        role_insensitive: 'dev',
-      },
-      bias: 4,
-    },
-    {
-      employee: {
-        id: 'cs4mgr4s0HBRZfGuVpDG',
-        name: 'Vinicíus Amâncio',
-        avatar_url: 'https://github.com/luizbatanero.png',
-        role: 'Designer',
-        role_insensitive: 'design',
-      },
-      bias: 3,
-    },
-  ],
-}
 
 export function History() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [data, setData] = useState<User[]>([])
   const [searchListData, setSearchListData] = useState<User[]>([])
+  const [selectedEmployee, setSelectedEmployee] = useState({} as User)
   const [search, setSearch] = useState('')
 
   const { user } = useAuth()
@@ -89,11 +29,12 @@ export function History() {
 
   const employeesLocalStorageKey = '@kraftheinz:employees'
 
-  function handleOpenHistoryModal() {
+  function handleOpenHistoryModal(employee: User) {
     setIsModalOpen(true)
+    setSelectedEmployee(employee)
   }
 
-  function handleCLoseHistoryModal() {
+  function handleCloseHistoryModal() {
     setIsModalOpen(false)
   }
 
@@ -150,48 +91,57 @@ export function History() {
           {searchListData.map((employee) => (
             <S.TeamMemberButton
               key={employee.id}
-              onClick={handleOpenHistoryModal}
+              onClick={() => handleOpenHistoryModal(employee)}
             >
               <TeamMemberCard data={employee}>
                 <span>
                   {employee.task_amount} entregas desde a última avaliação
                 </span>
 
-                {employee.potential === 'A' && (
-                  <SatisfactionEmoji
-                    type="great"
-                    size={44}
-                    color={colors['blue-800']}
-                  />
-                )}
+                <S.EvaluationDataContainer>
+                  {employee.manager_bias && (
+                    <div>
+                      <span>Seu viés com esse colaborador:</span>
+                      <Bias value={employee.manager_bias} />
+                    </div>
+                  )}
 
-                {employee.potential === 'B' && (
-                  <SatisfactionEmoji
-                    type="good"
-                    size={44}
-                    color={colors['blue-550']}
-                  />
-                )}
+                  {employee.potential === 'A' && (
+                    <SatisfactionEmoji
+                      type="great"
+                      size={44}
+                      color={colors['blue-800']}
+                    />
+                  )}
 
-                {employee.potential === 'C' && (
-                  <SatisfactionEmoji
-                    type="regular"
-                    size={44}
-                    color={colors['blue-200']}
-                  />
-                )}
+                  {employee.potential === 'B' && (
+                    <SatisfactionEmoji
+                      type="good"
+                      size={44}
+                      color={colors['blue-550']}
+                    />
+                  )}
+
+                  {employee.potential === 'C' && (
+                    <SatisfactionEmoji
+                      type="regular"
+                      size={44}
+                      color={colors['blue-200']}
+                    />
+                  )}
+                </S.EvaluationDataContainer>
               </TeamMemberCard>
             </S.TeamMemberButton>
           ))}
         </S.ContentWrapper>
-      </S.HistoryContainer>
 
-      <Modal isOpen={isModalOpen} onCloseModal={handleCLoseHistoryModal}>
-        <EmployeeHistoryModal
-          data={historyTest}
-          onCloseModal={handleCLoseHistoryModal}
-        />
-      </Modal>
+        <Modal isOpen={isModalOpen} onCloseModal={handleCloseHistoryModal}>
+          <EmployeeHistoryModal
+            userData={selectedEmployee}
+            onCloseModal={handleCloseHistoryModal}
+          />
+        </Modal>
+      </S.HistoryContainer>
     </>
   )
 }

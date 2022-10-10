@@ -1,8 +1,6 @@
 import styled from 'styled-components'
 
-export const FileContainer = styled.div.attrs({
-  classname: 'dropzone',
-})`
+export const FileContainer = styled.a`
   position: relative;
 
   flex: 1;

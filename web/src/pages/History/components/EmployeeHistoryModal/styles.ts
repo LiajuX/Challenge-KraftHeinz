@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components'
 
 export const EmployeeHistoryContainer = styled.div`
-  padding: 1.75rem 4.875rem 2.375rem;
+  padding: 1.75rem 4.875rem 5rem;
 
   span {
     display: inline-block;
@@ -127,4 +127,119 @@ export const BiasWrapper = styled.div`
   span {
     margin: 0;
   }
+`
+
+export const TasksContainer = styled.div`
+  position: relative;
+
+  padding-top: 2.625rem;
+`
+
+export const TasksWrapper = styled.div``
+
+export const TaskTimeline = styled.div`
+  position: absolute;
+  top: 0;
+  left: calc(15.625% - 0.85rem);
+
+  width: 5px;
+  height: 100%;
+
+  margin-top: 1rem;
+  border-radius: 2px;
+
+  background: ${({ theme }) => theme['grey-100']};
+`
+
+export const TaskContainer = styled.div`
+  display: grid;
+  grid-template-columns: 1.25fr 6.75fr;
+  align-items: flex-start;
+  gap: 0.5rem;
+
+  margin-bottom: 1rem;
+
+  span {
+    margin: 0.6rem 0 0.25rem;
+  }
+
+  p {
+    font-size: 0.75rem;
+  }
+`
+
+export const TitleContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+
+  h4 {
+    font-size: 1rem;
+  }
+
+  p {
+    color: ${({ theme }) => theme['green-500']};
+  }
+`
+
+export const TaskWrapper = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+
+  &:first-child {
+    align-items: flex-end;
+  }
+`
+
+interface PonctuationContainerProps {
+  color: string
+}
+
+export const PonctuationContainer = styled.div<PonctuationContainerProps>`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+
+  span {
+    margin: 0 !important;
+
+    color: ${({ color }) => color};
+
+    text-transform: uppercase;
+  }
+
+  time {
+    font-size: 1rem;
+
+    color: ${({ theme }) => theme['grey-300']};
+  }
+`
+
+export const PonctuationData = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+`
+
+export const PonctuationBullet = styled.div<PonctuationContainerProps>`
+  width: 1.25rem;
+  height: 1.25rem;
+
+  border-radius: 50%;
+
+  background: ${({ color }) => color};
+
+  z-index: 40;
+`
+
+export const EmptyTaskList = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  padding: 3rem 0;
+
+  color: ${({ theme }) => theme['grey-300']};
 `

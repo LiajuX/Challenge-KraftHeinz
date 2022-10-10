@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 import { doc, getDoc, Timestamp, updateDoc } from 'firebase/firestore'
 
 import { database } from '../../../../services/firebase'
@@ -69,7 +69,7 @@ export function StaffContent({
     if (userDocSnap.exists()) {
       const taskEvaluations = []
 
-      const userOldTasksEvaluations = userDocSnap.data().evaluated_tasks
+      const userOldTasksEvaluations = userDocSnap.data()?.evaluated_tasks
 
       if (userOldTasksEvaluations) {
         taskEvaluations.push(...userOldTasksEvaluations)

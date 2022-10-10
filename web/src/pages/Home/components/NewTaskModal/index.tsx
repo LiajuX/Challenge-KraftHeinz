@@ -1,12 +1,10 @@
-import { ChangeEvent, FormEvent, useCallback, useEffect, useState } from 'react'
+import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import {
   addDoc,
   collection,
-  doc,
   onSnapshot,
   query,
   Timestamp,
-  updateDoc,
   where,
 } from 'firebase/firestore'
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage'
@@ -236,17 +234,10 @@ export function NewTaskModal({ onCloseModal }: TaskDetailsModalProps) {
       assigned_to: user!.is_manager ? employeeAssignedTo : user!.id,
       icon: taskIcon.name,
       subtasks: hasSubtasks ? subtasks : null,
-      finished_date: user!.is_manager ? null : Timestamp.fromDate(new Date()),
     })
       .then((taskCreated) => {
-        const taskCreatedRef = doc(database, 'tasks', taskCreated.id)
-
         if (acceptedFiles.length > 0) {
-          sendFilesToCloudStorage(taskCreated.id).then(async () => {
-            await updateDoc(taskCreatedRef, {
-              files,
-            })
-          })
+          sendFilesToCloudStorage(taskCreated.id)
         }
       })
       .catch(() => {
@@ -261,7 +252,6 @@ export function NewTaskModal({ onCloseModal }: TaskDetailsModalProps) {
     description,
     dueDate,
     employeeAssignedTo,
-    files,
     hasSubtasks,
     onCloseModal,
     sendFilesToCloudStorage,
@@ -305,22 +295,20 @@ export function NewTaskModal({ onCloseModal }: TaskDetailsModalProps) {
       <header>
         <strong>Nova entrega</strong>
 
-        {user?.is_manager && (
-          <S.DueDate>
-            <label htmlFor="date-picker">
-              <Alarm weight="bold" size={20} />
-            </label>
+        <S.DueDate>
+          <label htmlFor="date-picker">
+            <Alarm weight="bold" size={20} />
+          </label>
 
-            <DatePicker
-              id="date-picker"
-              dateFormat="dd/MM/yyyy"
-              selected={dueDate}
-              placeholderText="Selecione um prazo"
-              closeOnScroll={(e) => e.target === document}
-              onChange={(date: Date) => setDueDate(date)}
-            />
-          </S.DueDate>
-        )}
+          <DatePicker
+            id="date-picker"
+            dateFormat="dd/MM/yyyy"
+            selected={dueDate}
+            placeholderText="Selecione um prazo"
+            closeOnScroll={(e) => e.target === document}
+            onChange={(date: Date) => setDueDate(date)}
+          />
+        </S.DueDate>
       </header>
 
       <S.TitleInput

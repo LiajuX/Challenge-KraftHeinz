@@ -45,7 +45,7 @@ export function Sidebar() {
           ))}
       </S.NavContainer>
 
-      <NavLink to="/settings">
+      <NavLink to="/">
         <FiSettings size={24} />
       </NavLink>
     </S.SidebarContainer>

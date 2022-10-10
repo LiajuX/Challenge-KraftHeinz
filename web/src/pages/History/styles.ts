@@ -47,3 +47,22 @@ export const TeamMemberButton = styled.button`
 export const SearchBarContainer = styled.div`
   width: 19.75rem;
 `
+
+export const EvaluationDataContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 3.5rem;
+
+  div {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  span {
+    color: ${({ theme }) => theme['grey-300']};
+
+    font-size: 0.75rem;
+    font-weight: bold;
+  }
+`

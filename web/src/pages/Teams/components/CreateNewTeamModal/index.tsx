@@ -1,12 +1,11 @@
 import { useState } from 'react'
 import { doc, addDoc, collection } from 'firebase/firestore'
 
-import { User } from '../../../../contexts/AuthContext'
-
 import { useAuth } from '../../../../hooks/useAuth'
 
 import { database } from '../../../../services/firebase'
 
+import { TeamMember } from '../..'
 import { EmployeesList } from '../EmployeesList'
 import { Button } from '../../../../components/Button'
 
@@ -22,7 +21,7 @@ export function CreateNewTeamModal({
   onCloseModal,
 }: CreateNewTeamModalProps) {
   const [title, setTitle] = useState('')
-  const [selectedMembers, setSelectedMembers] = useState<User[]>([])
+  const [selectedMembers, setSelectedMembers] = useState<TeamMember[]>([])
 
   const { user } = useAuth()
 

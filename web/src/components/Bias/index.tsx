@@ -5,7 +5,6 @@ interface BiasProps {
 }
 
 export function Bias({ value }: BiasProps) {
-  console.log(value)
   return (
     <S.BiasContainer>
       <S.BiasDivider />

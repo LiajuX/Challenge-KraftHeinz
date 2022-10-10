@@ -16,12 +16,15 @@ import { useAuth } from '../../hooks/useAuth'
 
 import { database } from '../../services/firebase'
 
+import { Button } from '../../components/Button'
 import { Loading } from '../../components/Loading'
 import { TeamMemberCard } from '../../components/TeamMemberCard'
 import { SearchBar } from '../../components/SearchBar'
-import { TeamMemberEvaluationModal } from './components/TeamMemberEvaluationModal'
+import {
+  TeamMemberEvaluation,
+  TeamMemberEvaluationModal,
+} from './components/TeamMemberEvaluationModal'
 import { RoundButton } from '../../components/RoundButton'
-import { TeamMemberManagerEvaluationModal } from './components/TeamMemberManagerEvaluationModal'
 import { MenuOptionButton } from '../../components/RoundButton/MenuOptionButton'
 import { Modal } from '../../components/Modal'
 import { CreateNewTeamModal } from './components/CreateNewTeamModal'
@@ -35,6 +38,8 @@ export interface TeamMember {
   avatar_url: string
   role: string
   role_insensitive: string
+  bias?: number
+  team_evaluations?: TeamMemberEvaluation[]
 }
 
 export interface TeamProps {
@@ -126,7 +131,12 @@ export function Teams() {
       where('managed_by', '==', user!.is_manager ? user!.id : user!.manager_id),
     )
 
-    const unsubscribe = onSnapshot(employeesQuery, (querySnapshot) => {
+    const usersQuery = query(
+      collection(database, 'users'),
+      where('manager_id', '==', user!.is_manager ? user!.id : user!.manager_id),
+    )
+
+    const unsubscribe = onSnapshot(employeesQuery, async (querySnapshot) => {
       const teams: TeamProps[] = []
 
       querySnapshot.forEach((doc) => {
@@ -134,20 +144,79 @@ export function Teams() {
           .data()
           .members.find((member: TeamMember) => member.id === user!.id)
 
+        const isThereAnAvaliationOfTheCurrentUser = !!doc
+          .data()
+          .members.forEach((member: TeamMember) =>
+            member?.team_evaluations?.find(
+              (teamEvaluation: TeamMemberEvaluation) =>
+                teamEvaluation.evaluator === user?.id,
+            ),
+          )
+
         if (isCurrentUserInThisTeam) {
-          teams.push({
-            id: doc.id,
-            ...doc.data(),
-          } as TeamProps)
+          if (isThereAnAvaliationOfTheCurrentUser) {
+            teams.push({
+              id: doc.id,
+              ...doc.data(),
+            } as TeamProps)
+          } else {
+            teams.push({
+              id: doc.id,
+              ...doc.data(),
+              members: doc.data().members.map((member: TeamMember) => {
+                return { ...member, team_evaluations: null }
+              }),
+            } as TeamProps)
+          }
         }
+
+        onSnapshot(usersQuery, (usersQuerySnapshot) => {
+          teams.forEach((team) => {
+            usersQuerySnapshot.forEach((userDoc) => {
+              if (userDoc.data().team_evaluations) {
+                const evaluations = userDoc
+                  .data()
+                  .team_evaluations?.find(
+                    (teamEvaluation: TeamMemberEvaluation) =>
+                      teamEvaluation.evaluator === user?.id,
+                  )
+
+                const userEvaluations = {
+                  id: userDoc.id,
+                  evaluations: evaluations ? [evaluations] : null,
+                }
+
+                if (userEvaluations.evaluations) {
+                  userEvaluations.evaluations.map((evaluation) => {
+                    return (evaluation.last_evaluation =
+                      evaluation.last_evaluation.toDate())
+                  })
+
+                  team.members.forEach((member) => {
+                    if (member.id === userEvaluations.id) {
+                      if (userEvaluations.evaluations) {
+                        member.team_evaluations = [
+                          ...userEvaluations.evaluations,
+                        ]
+                      }
+                    }
+                  })
+                } else {
+                  return team
+                }
+              }
+            })
+          })
+
+          const teamsLocalData = localStorage.getItem(teamsLocalStorageKey)
+          const formattedLocalData =
+            teamsLocalData && JSON.parse(teamsLocalData)
+
+          setData(teams || formattedLocalData)
+          setSearchListData(teams || formattedLocalData)
+          localStorage.setItem(teamsLocalStorageKey, JSON.stringify(teams))
+        })
       })
-
-      const teamsLocalData = localStorage.getItem(teamsLocalStorageKey)
-      const formattedLocalData = teamsLocalData && JSON.parse(teamsLocalData)
-
-      setData(teams || formattedLocalData)
-      setSearchListData(teams || formattedLocalData)
-      localStorage.setItem(teamsLocalStorageKey, JSON.stringify(teams))
     })
 
     return () => {
@@ -188,22 +257,51 @@ export function Teams() {
                       <TeamMemberCard data={member}>
                         <S.EvaluationTimeContainer>
                           <span>
-                            Última avaliação em{' '}
-                            {/* format(member.last_evaluation, 'dd/MM/yyyy', {
-                          locale: ptBR,
-                        }) */}
+                            {member.team_evaluations
+                              ? `Última avaliação em ${format(
+                                  member.team_evaluations[0].last_evaluation,
+                                  'dd/MM/yyyy',
+                                  {
+                                    locale: ptBR,
+                                  },
+                                )}`
+                              : 'Sem dados de avaliação'}
                           </span>
 
-                          {/* <span>
-                        Tempo até nova avaliação:{' '}
-                        {differenceInDays(new Date(), member.last_evaluation) >=
-                        31
-                          ? 'Disponível'
-                          : differenceInDays(
-                              addDays(member.last_evaluation, 31),
-                              new Date(),
-                            ) + ' dias'}
-                      </span> */}
+                          {member.team_evaluations ? (
+                            <span>
+                              Tempo até nova avaliação:{' '}
+                              {team.is_subteam
+                                ? differenceInDays(
+                                    new Date(),
+                                    member.team_evaluations[0].last_evaluation,
+                                  ) >= 30
+                                  ? 'Disponível'
+                                  : differenceInDays(
+                                      addDays(
+                                        member.team_evaluations[0]
+                                          .last_evaluation,
+                                        30,
+                                      ),
+                                      new Date(),
+                                    ) + ' dias'
+                                : differenceInDays(
+                                    new Date(),
+                                    member.team_evaluations[0].last_evaluation,
+                                  ) >= 60
+                                ? 'Disponível'
+                                : differenceInDays(
+                                    addDays(
+                                      member.team_evaluations[0]
+                                        .last_evaluation,
+                                      60,
+                                    ),
+                                    new Date(),
+                                  ) + ' dias'}
+                            </span>
+                          ) : (
+                            <span>Disponível</span>
+                          )}
                         </S.EvaluationTimeContainer>
 
                         {isEditingTeams && (
@@ -215,30 +313,50 @@ export function Teams() {
                             remover
                           </S.DeleteButton>
                         )}
-                        {/*  : differenceInDays(new Date(), member.last_evaluation) >
-                      30 ? (
-                      <Button
-                        title="Avaliar"
-                        buttonStyle="secondary"
-                        onClick={() =>
-                          handleOpenTeamMemberEvaluationModal(member)
-                        }
-                      />
-                    ) : (
-                      <S.DisabledButton>avaliar</S.DisabledButton>
-                    )} */}
 
-                        {user?.is_manager ? (
-                          <TeamMemberManagerEvaluationModal
-                            member={currentMemberEvaluating}
-                            isOpen={isEvaluationModalOpen}
-                            onCloseModal={handleCloseTeamMemberEvaluationModal}
-                          />
-                        ) : (
-                          <TeamMemberEvaluationModal
-                            member={currentMemberEvaluating}
-                            isOpen={isEvaluationModalOpen}
-                            onCloseModal={handleCloseTeamMemberEvaluationModal}
+                        {!isEditingTeams &&
+                          member.team_evaluations &&
+                          team.is_subteam &&
+                          (differenceInDays(
+                            new Date(),
+                            member.team_evaluations[0].last_evaluation,
+                          ) > 30 ? (
+                            <Button
+                              title="Avaliar"
+                              buttonStyle="secondary"
+                              onClick={() =>
+                                handleOpenTeamMemberEvaluationModal(member)
+                              }
+                            />
+                          ) : (
+                            <S.DisabledButton>Avaliar</S.DisabledButton>
+                          ))}
+
+                        {!isEditingTeams &&
+                          member.team_evaluations &&
+                          !team.is_subteam &&
+                          (differenceInDays(
+                            new Date(),
+                            member.team_evaluations[0].last_evaluation,
+                          ) > 60 ? (
+                            <Button
+                              title="Avaliar"
+                              buttonStyle="secondary"
+                              onClick={() =>
+                                handleOpenTeamMemberEvaluationModal(member)
+                              }
+                            />
+                          ) : (
+                            <S.DisabledButton>Avaliar</S.DisabledButton>
+                          ))}
+
+                        {!isEditingTeams && !member.team_evaluations && (
+                          <Button
+                            title="Avaliar"
+                            buttonStyle="secondary"
+                            onClick={() =>
+                              handleOpenTeamMemberEvaluationModal(member)
+                            }
                           />
                         )}
                       </TeamMemberCard>
@@ -295,6 +413,16 @@ export function Teams() {
           />
         </RoundButton>
       )}
+
+      <Modal
+        isOpen={isEvaluationModalOpen}
+        onCloseModal={handleCloseTeamMemberEvaluationModal}
+      >
+        <TeamMemberEvaluationModal
+          member={currentMemberEvaluating}
+          onCloseModal={handleCloseTeamMemberEvaluationModal}
+        />
+      </Modal>
 
       <Modal
         isOpen={isCreateNewTeamModalOpen}

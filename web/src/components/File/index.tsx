@@ -21,7 +21,7 @@ export function File({ data, taskAttached }: FileProps) {
   const extension = data.name.split('.')[1]
 
   return (
-    <S.FileContainer>
+    <S.FileContainer href={data.url} target="_blank">
       <S.ExtensionWrapper>
         <Paperclip size={20} />
         <span>.{extension}</span>
